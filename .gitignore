@@ -1,3 +1,4 @@
 /target
 cal.db
 .vscode/
+Cargo.lock
