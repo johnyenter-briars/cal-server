@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 
 #[derive(Debug)]
 pub struct Event {
-    id: i32,
+    pub id: i32,
     pub time: DateTime<Utc>,
     pub name: String,
 }

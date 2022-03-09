@@ -5,16 +5,16 @@ pub fn initiaize_db() -> Result<bool, Box<dyn std::error::Error>> {
     let conn = Connection::open(DB_NAME)?;
 
     conn.execute(
-        "CREATE TABLE IF NOT EXISTS person (
+        "CREATE TABLE IF NOT EXISTS event (
                   id              INTEGER PRIMARY KEY,
-                  name            TEXT NOT NULL,
-                  data            BLOB
+                  time            INTEGER,
+                  name            TEXT NOT NULL
                   )",
         [],
     )?;
 
     conn.execute(
-        " delete from person
+        " delete from event
                   ",
         [],
     )?;
