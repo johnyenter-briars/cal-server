@@ -1,44 +1,32 @@
-use rusqlite::{params, Connection, Result};
+use actix_web::{get, web, App, HttpServer, Responder};
+use cal_server::args::programargs::get_args;
+use cal_server::db::init::initiaize_db;
+use cal_server::routes::event::create_event;
 
-#[derive(Debug)]
-struct Person {
-    id: i32,
-    name: String,
-    data: Option<Vec<u8>>,
-}
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let args = get_args();
 
-fn main() -> Result<()> {
-    let conn = Connection::open("cal.db")?;
+    println!("{:?}", args);
 
-    // conn.execute(
-    //     "CREATE TABLE person (
-    //               id              INTEGER PRIMARY KEY,
-    //               name            TEXT NOT NULL,
-    //               data            BLOB
-    //               )",
-    //     [],
-    // )?;
-    let me = Person {
-        id: 0,
-        name: "Steven".to_string(),
-        data: None,
-    };
-    conn.execute(
-        "INSERT INTO person (name, data) VALUES (?1, ?2)",
-        params![me.name, me.data],
-    )?;
-
-    let mut stmt = conn.prepare("SELECT id, name, data FROM person")?;
-    let person_iter = stmt.query_map([], |row| {
-        Ok(Person {
-            id: row.get(0)?,
-            name: row.get(1)?,
-            data: row.get(2)?,
-        })
-    })?;
-
-    for person in person_iter {
-        println!("Found person {:?}", person.unwrap());
+    if args.reset_db {
+        let init_result = initiaize_db();
+        if init_result.is_err() {
+            panic!("Failure to init the DB!: {:?}", init_result.err().unwrap());
+        }
     }
-    Ok(())
+
+    HttpServer::new(|| App::new().service(create_event))
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
+
+    // HttpServer::new(|| {
+    //     App::new()
+    //         .route("/hello")
+    //         .service(create_event)
+    // })
+    // .bind(("127.0.0.1", 8080))?
+    // .run()
+    // .await
 }
