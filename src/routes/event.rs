@@ -1,6 +1,14 @@
+use crate::{db::calconnector::CalConnector, models::event::Event};
 use actix_web::{post, web, App, HttpServer, Responder};
 
 #[post("/api/event/{event_name}")]
 pub async fn create_event(event_name: web::Path<String>) -> impl Responder {
-    format!("Hello {event_name}!")
+    let new_event = Event::new(chrono::offset::Utc::now(), event_name.to_string());
+
+    let result = CalConnector::create_event(new_event);
+
+    match result {
+        Ok(r) => format!("Success? {:?}", r),
+        Err(e) => format!("Something went wrong! {:?}", e),
+    }
 }

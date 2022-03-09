@@ -1,13 +1,10 @@
-use actix_web::{get, web, App, HttpServer, Responder};
-use cal_server::args::programargs::get_args;
-use cal_server::db::init::initiaize_db;
-use cal_server::routes::event::create_event;
+use cal_server::{
+    args::programargs::get_args, db::init::initiaize_db, server::build_and_run_server,
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let args = get_args();
-
-    println!("{:?}", args);
 
     if args.reset_db {
         let init_result = initiaize_db();
@@ -16,17 +13,5 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    HttpServer::new(|| App::new().service(create_event))
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
-
-    // HttpServer::new(|| {
-    //     App::new()
-    //         .route("/hello")
-    //         .service(create_event)
-    // })
-    // .bind(("127.0.0.1", 8080))?
-    // .run()
-    // .await
+    build_and_run_server(args.domain, args.port).await
 }
