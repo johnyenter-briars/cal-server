@@ -1,7 +1,9 @@
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
-#[derive(Debug)]
-pub struct Event {
+#[derive(Debug, Serialize)]
+pub struct Event
+{
     pub id: i32,
     pub time: DateTime<Utc>,
     pub name: String,
