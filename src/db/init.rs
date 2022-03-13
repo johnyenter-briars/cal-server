@@ -1,4 +1,4 @@
-use rusqlite::{params, Connection, Result};
+use rusqlite::{Connection, Result};
 use super::DB_NAME;
 
 pub fn initiaize_db() -> Result<bool, Box<dyn std::error::Error>> {

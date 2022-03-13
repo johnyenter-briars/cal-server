@@ -7,7 +7,7 @@ use std::error::Error;
 pub struct CalConnector {}
 
 impl CalConnector {
-    pub fn create_event(event: Event) -> Result<bool, Box<dyn Error>> {
+    pub fn create_event(event: Event) -> Result<(), Box<dyn Error>> {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
@@ -15,7 +15,7 @@ impl CalConnector {
             params![event.time.timestamp(), event.name],
         )?;
 
-        Ok(true)
+        Ok(())
     }
 
     pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
