@@ -9,7 +9,7 @@ async fn main() -> std::io::Result<()> {
     if args.reset_db {
         let init_result = initiaize_db();
         if init_result.is_err() {
-            panic!("Failure to init the DB!: {:?}", init_result.err().unwrap());
+            panic!("Failure to init the DB: {:?}", init_result.err().unwrap());
         }
     }
 
