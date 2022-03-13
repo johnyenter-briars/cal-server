@@ -1,7 +1,7 @@
 use rusqlite::{Connection, Result};
 use super::DB_NAME;
 
-pub fn initiaize_db() -> Result<bool, Box<dyn std::error::Error>> {
+pub fn initiaize_db() -> Result<(), Box<dyn std::error::Error>> {
     let conn = Connection::open(DB_NAME)?;
 
     conn.execute(
@@ -20,7 +20,7 @@ pub fn initiaize_db() -> Result<bool, Box<dyn std::error::Error>> {
     )?;
 
     match conn.close() {
-        Ok(_) => Ok(true),
+        Ok(_) => Ok(()),
         Err((_, err)) => Err(Box::new(err)),
     }
 }
