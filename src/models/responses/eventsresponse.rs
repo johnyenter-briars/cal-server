@@ -16,4 +16,10 @@ impl EventsResponse {
     pub fn error(message: String) -> Self {
         EventsResponse{status_code: 500, message, events: vec![]}
     }
+    
+    pub fn as_serde_string(self) -> String {
+        let response_string =
+            serde_json::to_string(&self).expect("Unable to parse response object!");
+        response_string
+    }
 }
