@@ -7,11 +7,11 @@ async fn main() -> std::io::Result<()> {
     let args = get_args();
 
     if args.reset_db {
-        let init_result = initiaize_db();
+        let init_result = initiaize_db(args.test_data);
         if init_result.is_err() {
             panic!("Failure to init the DB: {:?}", init_result.err().unwrap());
         }
     }
 
-    build_and_run_server(args.domain, args.port).await
+    build_and_run_server(args.ip, args.port).await
 }

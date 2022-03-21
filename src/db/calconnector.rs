@@ -26,7 +26,8 @@ impl CalConnector {
             Ok(Event {
                 id: row.get(0)?,
                 time: DateTime::from_utc(
-                    NaiveDateTime::from_timestamp(row.get::<usize, i64>(1)?, 0), Utc
+                    NaiveDateTime::from_timestamp(row.get::<usize, i64>(1)?, 0),
+                    Utc,
                 ),
                 name: row.get(2)?,
             })
