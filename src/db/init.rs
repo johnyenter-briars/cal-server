@@ -1,26 +1,53 @@
-use rusqlite::{Connection, Result};
-use super::DB_NAME;
+use std::{
+    fs::{self, File},
+    io::Read,
+};
 
-pub fn initiaize_db() -> Result<(), Box<dyn std::error::Error>> {
+use super::DB_NAME;
+use rusqlite::{Connection, Result};
+
+pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Error>> {
+    delete_database()?;
+
     let conn = Connection::open(DB_NAME)?;
 
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS event (
-                  id              INTEGER PRIMARY KEY,
-                  time            INTEGER,
-                  name            TEXT NOT NULL
-                  )",
-        [],
-    )?;
+    let create_caluser = get_sql_file_contents("create_caluser")?;
+    conn.execute(&create_caluser, [])?;
 
-    conn.execute(
-        " delete from event
-                  ",
-        [],
-    )?;
+    let create_event = get_sql_file_contents("create_event")?;
+    conn.execute(&create_event, [])?;
+
+    if init_test_data {
+        add_test_data(&conn)?;
+    }
 
     match conn.close() {
         Ok(_) => Ok(()),
         Err((_, err)) => Err(Box::new(err)),
     }
+}
+
+fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let mut file = File::open(format!("./db/ddl/{}.sql", file_name))?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    Ok(contents)
+}
+
+fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
+    fs::remove_file(DB_NAME)?;
+    Ok(())
+}
+
+fn add_test_data(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    conn.execute(
+        "insert into caluser (first_name, second_name) values ('Jim', 'Pankey');",
+        [],
+    )?;
+    conn.execute(
+        "insert into event (time, name, caluserid) values (100, 'test event', 1);",
+        [],
+    )?;
+
+    Ok(())
 }
