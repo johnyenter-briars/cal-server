@@ -1,21 +1,21 @@
 use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct NewEventResponse {
+pub struct CreateEventResponse {
     status_code: u32,
     message: String,
 }
 
-impl NewEventResponse {
+impl CreateEventResponse {
     pub fn created() -> Self {
-        NewEventResponse {
+        CreateEventResponse {
             status_code: 201,
             message: "Event created".to_string(),
         }
     }
 
     pub fn error(message: String) -> Self {
-        NewEventResponse {
+        CreateEventResponse {
             status_code: 500,
             message,
         }

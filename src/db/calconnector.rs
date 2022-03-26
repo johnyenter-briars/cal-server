@@ -1,5 +1,5 @@
 use super::DB_NAME;
-use crate::models::event::Event;
+use crate::models::{event::Event, requests::createeventrequest::CreateEventRequest};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rusqlite::{params, Connection};
 use std::error::Error;
@@ -7,12 +7,12 @@ use std::error::Error;
 pub struct CalConnector {}
 
 impl CalConnector {
-    pub fn create_event(event: Event) -> Result<(), Box<dyn Error>> {
+    pub fn create_event(event_req: CreateEventRequest) -> Result<(), Box<dyn Error>> {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
             "INSERT INTO event (time, name) VALUES (?1, ?2)",
-            params![event.time.timestamp(), event.name],
+            params![event_req.time.timestamp(), event_req.name],
         )?;
 
         Ok(())

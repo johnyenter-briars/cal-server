@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File},
-    io::Read,
+    io::{ErrorKind, Read},
 };
 
 use super::DB_NAME;
@@ -35,8 +35,13 @@ fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::
 }
 
 fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
-    fs::remove_file(DB_NAME)?;
-    Ok(())
+    match fs::remove_file(DB_NAME) {
+        Ok(_) => Ok(()),
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => Ok(()),
+            e => Err(Box::from(format!("{:?}", e))),
+        },
+    }
 }
 
 fn add_test_data(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
