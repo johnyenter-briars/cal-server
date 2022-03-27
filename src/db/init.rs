@@ -3,7 +3,10 @@ use std::{
     io::{ErrorKind, Read},
 };
 
-use super::DB_NAME;
+use crate::models::requests::createeventrequest::CreateEventRequest;
+
+use super::{DB_NAME, calconnector::CalConnector};
+use chrono::Utc;
 use rusqlite::{Connection, Result};
 
 pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Error>> {
@@ -17,14 +20,13 @@ pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Erro
     let create_event = get_sql_file_contents("create_event")?;
     conn.execute(&create_event, [])?;
 
+    drop(conn);
+
     if init_test_data {
-        add_test_data(&conn)?;
+        add_test_data()?;
     }
 
-    match conn.close() {
-        Ok(_) => Ok(()),
-        Err((_, err)) => Err(Box::new(err)),
-    }
+    Ok(())
 }
 
 fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -44,15 +46,26 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn add_test_data(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
-    conn.execute(
-        "insert into caluser (first_name, second_name) values ('Jim', 'Pankey');",
-        [],
-    )?;
-    conn.execute(
-        "insert into event (time, name, caluserid) values (100, 'test event', 1);",
-        [],
-    )?;
+fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
+    CalConnector::create_caluser("Jim", "Pankey")?;
+
+    CalConnector::create_event(CreateEventRequest{
+        name: "first test event".to_string(),
+        time: Utc::now(),
+        cal_user_id: 1,
+    })?;
+
+    CalConnector::create_event(CreateEventRequest{
+        name: "second test event".to_string(),
+        time: Utc::now(),
+        cal_user_id: 1,
+    })?;
+
+    CalConnector::create_event(CreateEventRequest{
+        name: "third test event".to_string(),
+        time: Utc::now(),
+        cal_user_id: 1,
+    })?;
 
     Ok(())
 }

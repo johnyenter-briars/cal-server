@@ -1,7 +1,6 @@
 use crate::{
     db::calconnector::CalConnector,
     models::{
-        event::Event,
         responses::{eventsresponse::EventsResponse, createeventresponse::CreateEventResponse}, requests::createeventrequest::CreateEventRequest,
     },
 };

@@ -1,4 +1,4 @@
-use crate::routes::event::{create_event, get_events};
+use crate::routes::{event::{create_event, get_events}, caluser::{create_caluser, get_caluser}};
 use actix_web::{App, HttpServer, middleware::Logger};
 
 pub async fn build_and_run_server(domain: String, port: u16) -> std::io::Result<()> {
@@ -7,7 +7,9 @@ pub async fn build_and_run_server(domain: String, port: u16) -> std::io::Result<
     HttpServer::new(|| App::new()
             .service(create_event)
             .service(get_events)
-            .wrap(Logger::new("%a %{User-Agent}i %r %s"))
+            .service(create_caluser)
+            .service(get_caluser)
+            .wrap(Logger::new("%a %{User-Agent}i %r %s %U %{Content-Type}i"))
         )
         .bind((domain, port))?
         .run()
