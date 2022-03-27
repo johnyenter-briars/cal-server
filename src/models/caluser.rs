@@ -2,6 +2,7 @@ use rusqlite::Row;
 use serde::Serialize;
 use super::construct::ConstructableFromSql;
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CalUser {
     pub id: i32,
     pub first_name: String,

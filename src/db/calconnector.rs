@@ -48,7 +48,7 @@ impl CalConnector {
 
     pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
         Ok(CalConnector::get_records::<Event>(
-            "SELECT id, time, name FROM event",
+            "SELECT id, time, name, caluserid name FROM event",
         )?)
     }
 
