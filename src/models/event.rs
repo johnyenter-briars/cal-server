@@ -5,15 +5,17 @@ use serde::Serialize;
 use super::construct::ConstructableFromSql;
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Event {
-    pub id: i32,
+    pub id: u32,
     pub time: DateTime<Utc>,
     pub name: String,
+    pub cal_user_id: u32,
 }
 
 impl Event {
-    pub fn new(time: DateTime<Utc>, name: String) -> Self {
-        Event { id: 0, time, name }
+    pub fn new(id: u32, time: DateTime<Utc>, name: String, cal_user_id: u32) -> Self {
+        Event { id, time, name, cal_user_id}
     }
 }
 
@@ -26,6 +28,7 @@ impl ConstructableFromSql<Event> for Event {
                 Utc,
             ),
             name: row.get(2).expect("no 2th row??"),
+            cal_user_id: row.get(3).expect("no 3th row??"),
         }
     }
 }
