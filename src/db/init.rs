@@ -3,7 +3,7 @@ use std::{
     io::{ErrorKind, Read},
 };
 
-use crate::models::server::requests::createeventrequest::CreateEventRequest;
+use crate::models::server::requests::{createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest};
 
 use super::{DB_NAME, calconnector::CalConnector};
 use chrono::Utc;
@@ -49,25 +49,45 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
 fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     CalConnector::create_caluser("Jim", "Pankey")?;
 
-    CalConnector::create_event(CreateEventRequest{
+    // An event that is 0 seconds long - not part of a series
+    let event_id = CalConnector::create_event(CreateEventRequest{
         name: "first test event".to_string(),
         start_time: Some(Utc::now()),
-        end_time: None,
+        end_time: Some(Utc::now()),
         cal_user_id: 1,
         series_id: None,
     })?;
 
-    // CalConnector::create_event(CreateEventRequest{
-    //     name: "second test event".to_string(),
-    //     time: Utc::now(),
-    //     cal_user_id: 1,
-    // })?;
+    //create the series
+    let series_id = CalConnector::create_series(CreateSeriesRequest {
+        repeat_every_week: 1,
+        repeat_on_mon: true,
+        repeat_on_tues: false,
+        repeat_on_wed: true,
+        repeat_on_thurs: false,
+        repeat_on_fri: false,
+        repeat_on_sat: false,
+        repeat_on_sun: false,
+        ends_on: Some(Utc::now()),
+    })?;
 
-    // CalConnector::create_event(CreateEventRequest{
-    //     name: "third test event".to_string(),
-    //     time: Utc::now(),
-    //     cal_user_id: 1,
-    // })?;
+
+    //create two events for it
+    CalConnector::create_event(CreateEventRequest{
+        name: "first test event".to_string(),
+        start_time: Some(Utc::now()),
+        end_time: Some(Utc::now()),
+        cal_user_id: 1,
+        series_id: Some(series_id),
+    })?;
+    
+    CalConnector::create_event(CreateEventRequest{
+        name: "first test event".to_string(),
+        start_time: Some(Utc::now()),
+        end_time: Some(Utc::now()),
+        cal_user_id: 1,
+        series_id: Some(series_id),
+    })?;
 
     Ok(())
 }
