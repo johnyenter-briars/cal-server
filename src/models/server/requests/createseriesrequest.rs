@@ -1,5 +1,8 @@
 use chrono::{DateTime, Utc};
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateSeriesRequest {
     pub repeat_every_week: u32,
     pub repeat_on_mon: bool,
