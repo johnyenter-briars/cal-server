@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS series (
     id INTEGER PRIMARY KEY,
-    repeatevery INTEGER NOT NULL,
+    repeateveryweek INTEGER NOT NULL,
     repeateonmon BOOLEAN NOT NULL CHECK (repeateonmon IN (0, 1)),
     repeateontues BOOLEAN NOT NULL CHECK (repeateontues IN (0, 1)),
     repeateonwed BOOLEAN NOT NULL CHECK (repeateonwed IN (0, 1)),
