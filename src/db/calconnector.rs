@@ -1,10 +1,11 @@
 use super::DB_NAME;
-use crate::models::{cal::{caluser::CalUser, event::Event}, server::requests::createeventrequest::CreateEventRequest, traits::construct::ConstructableFromSql
+use crate::models::{
+    cal::{caluser::CalUser, event::Event},
+    server::requests::createeventrequest::CreateEventRequest,
+    traits::construct::ConstructableFromSql,
 };
 use rusqlite::{params, Connection};
-use std::{
-    error::Error,
-};
+use std::error::Error;
 
 pub struct CalConnector {}
 
@@ -13,7 +14,9 @@ impl CalConnector {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
-            &format!("insert into caluser (firstname, lastname) values ('{first_name}', '{last_name}');"),
+            &format!(
+                "insert into caluser (firstname, lastname) values ('{first_name}', '{last_name}');"
+            ),
             [],
         )?;
 
@@ -37,8 +40,20 @@ impl CalConnector {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
-            "INSERT INTO event (time, name, caluserid) VALUES (?1, ?2, ?3)",
-            params![event_req.time.timestamp(), event_req.name, event_req.cal_user_id],
+            "INSERT INTO event (starttime, endtime, name, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![
+                match event_req.start_time {
+                    Some(t) => Some(t.timestamp()),
+                    None => None,
+                },
+                match event_req.end_time {
+                    Some(t) => Some(t.timestamp()),
+                    None => None,
+                },
+                event_req.name,
+                event_req.cal_user_id,
+                event_req.series_id,
+            ],
         )?;
 
         Ok(())
