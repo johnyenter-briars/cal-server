@@ -1,6 +1,6 @@
 use crate::{
     db::calconnector::CalConnector,
-    models::{
+    models::server::{
         requests::createcaluserrequest::CreateCalUserRequest,
         responses::{
             caluserresponse::CalUserResponse, createcaluserresponse::CreateCalUserResponse,
