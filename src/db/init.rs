@@ -14,11 +14,11 @@ pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Erro
 
     let conn = Connection::open(DB_NAME)?;
 
-    let create_caluser = get_sql_file_contents("create_caluser")?;
-    conn.execute(&create_caluser, [])?;
+    conn.execute(&get_sql_file_contents("series")?, [])?;
 
-    let create_event = get_sql_file_contents("create_event")?;
-    conn.execute(&create_event, [])?;
+    conn.execute(&get_sql_file_contents("caluser")?, [])?;
+
+    conn.execute(&get_sql_file_contents("event")?, [])?;
 
     drop(conn);
 
@@ -51,21 +51,23 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
 
     CalConnector::create_event(CreateEventRequest{
         name: "first test event".to_string(),
-        time: Utc::now(),
+        start_time: Some(Utc::now()),
+        end_time: None,
         cal_user_id: 1,
+        series_id: None,
     })?;
 
-    CalConnector::create_event(CreateEventRequest{
-        name: "second test event".to_string(),
-        time: Utc::now(),
-        cal_user_id: 1,
-    })?;
+    // CalConnector::create_event(CreateEventRequest{
+    //     name: "second test event".to_string(),
+    //     time: Utc::now(),
+    //     cal_user_id: 1,
+    // })?;
 
-    CalConnector::create_event(CreateEventRequest{
-        name: "third test event".to_string(),
-        time: Utc::now(),
-        cal_user_id: 1,
-    })?;
+    // CalConnector::create_event(CreateEventRequest{
+    //     name: "third test event".to_string(),
+    //     time: Utc::now(),
+    //     cal_user_id: 1,
+    // })?;
 
     Ok(())
 }
