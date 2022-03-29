@@ -1,6 +1,6 @@
 use super::DB_NAME;
 use crate::models::{
-    cal::{caluser::CalUser, event::Event},
+    cal::{caluser::CalUser, event::Event, series::Series},
     server::requests::{
         createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
     },
@@ -13,17 +13,18 @@ use std::error::Error;
 pub struct CalConnector {}
 
 impl CalConnector {
-    pub fn create_caluser(first_name: &str, last_name: &str) -> Result<(), Box<dyn Error>> {
+    pub fn create_caluser(first_name: &str, last_name: &str) -> Result<u32, Box<dyn Error>> {
+        let new_id = CalConnector::generate_random_id();
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
             &format!(
-                "insert into caluser (firstname, lastname) values ('{first_name}', '{last_name}');"
+                "insert into caluser (id, firstname, lastname) values (?1, ?2, ?3);"
             ),
-            [],
+            params![new_id, first_name, last_name],
         )?;
 
-        Ok(())
+        Ok(new_id)
     }
 
     pub fn create_event(event_req: CreateEventRequest) -> Result<u32, Box<dyn Error>> {
@@ -104,6 +105,19 @@ impl CalConnector {
         assert!(users.len() == 1, "More than one users with that id! : (");
 
         match users.pop() {
+            Some(u) => Ok(u),
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn get_series(id: u32) -> Result<Series, Box<dyn Error>> {
+        let mut seri = CalConnector::get_records::<Series>(&format!(
+            "SELECT * FROM series where id = {id}"
+        ))?;
+
+        assert!(seri.len() == 1, "More than one series with that id! : (");
+
+        match seri.pop() {
             Some(u) => Ok(u),
             _ => unreachable!(),
         }

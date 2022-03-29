@@ -47,14 +47,14 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
-    CalConnector::create_caluser("Jim", "Pankey")?;
+    let user_id = CalConnector::create_caluser("Jim", "Pankey")?;
 
     // An event that is 0 seconds long - not part of a series
-    let event_id = CalConnector::create_event(CreateEventRequest{
+    CalConnector::create_event(CreateEventRequest{
         name: "first test event".to_string(),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
-        cal_user_id: 1,
+        cal_user_id: user_id,
         series_id: None,
     })?;
 
@@ -70,14 +70,13 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         repeat_on_sun: false,
         ends_on: Some(Utc::now()),
     })?;
-
-
+    
     //create two events for it
     CalConnector::create_event(CreateEventRequest{
         name: "first test event".to_string(),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
-        cal_user_id: 1,
+        cal_user_id: user_id,
         series_id: Some(series_id),
     })?;
     
@@ -85,7 +84,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         name: "first test event".to_string(),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
-        cal_user_id: 1,
+        cal_user_id: user_id,
         series_id: Some(series_id),
     })?;
 
