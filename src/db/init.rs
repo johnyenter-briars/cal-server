@@ -3,7 +3,7 @@ use std::{
     io::{ErrorKind, Read},
 };
 
-use crate::models::requests::createeventrequest::CreateEventRequest;
+use crate::models::server::requests::createeventrequest::CreateEventRequest;
 
 use super::{DB_NAME, calconnector::CalConnector};
 use chrono::Utc;

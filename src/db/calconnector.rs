@@ -1,7 +1,5 @@
 use super::DB_NAME;
-use crate::models::{
-    caluser::CalUser, construct::ConstructableFromSql, event::Event,
-    requests::createeventrequest::CreateEventRequest,
+use crate::models::{cal::{caluser::CalUser, event::Event}, server::requests::createeventrequest::CreateEventRequest, traits::construct::ConstructableFromSql
 };
 use rusqlite::{params, Connection};
 use std::{

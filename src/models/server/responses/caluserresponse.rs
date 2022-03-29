@@ -1,4 +1,4 @@
-use crate::models::caluser::CalUser;
+use crate::models::cal::caluser::CalUser;
 use serde::Serialize;
 
 #[derive(Serialize)]

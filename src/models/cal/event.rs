@@ -2,7 +2,8 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use rusqlite::Row;
 use serde::Serialize;
 
-use super::construct::ConstructableFromSql;
+use crate::models::traits::construct::ConstructableFromSql;
+
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -10,12 +11,12 @@ pub struct Event {
     pub id: u32,
     pub time: DateTime<Utc>,
     pub name: String,
-    pub cal_user_id: u32,
+    pub caluser_id: u32,
 }
 
 impl Event {
     pub fn new(id: u32, time: DateTime<Utc>, name: String, cal_user_id: u32) -> Self {
-        Event { id, time, name, cal_user_id}
+        Event { id, time, name, caluser_id: cal_user_id}
     }
 }
 
@@ -28,7 +29,7 @@ impl ConstructableFromSql<Event> for Event {
                 Utc,
             ),
             name: row.get(2).expect("no 2th row??"),
-            cal_user_id: row.get(3).expect("no 3th row??"),
+            caluser_id: row.get(3).expect("no 3th row??"),
         }
     }
 }

@@ -1,2 +1,2 @@
-pub mod event;
-pub mod caluser;
+pub mod eventroutes;
+pub mod caluserroutes;

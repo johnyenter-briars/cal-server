@@ -1,7 +1,8 @@
 use crate::{
     db::calconnector::CalConnector,
-    models::{
-        responses::{eventsresponse::EventsResponse, createeventresponse::CreateEventResponse}, requests::createeventrequest::CreateEventRequest,
+    models::server::{
+        requests::createeventrequest::CreateEventRequest,
+        responses::{createeventresponse::CreateEventResponse, eventsresponse::EventsResponse},
     },
 };
 use actix_web::{get, http::header::ContentType, post, web, HttpResponse};
