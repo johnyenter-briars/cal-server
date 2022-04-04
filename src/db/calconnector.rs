@@ -102,11 +102,11 @@ impl CalConnector {
             "SELECT id, firstname, lastname FROM caluser where id = {id}"
         ))?;
 
-        assert!(users.len() == 1, "More than one users with that id! : (");
+        assert!(users.len() <= 1, "More than one users with that id! : (");
 
         match users.pop() {
             Some(u) => Ok(u),
-            _ => unreachable!(),
+            None => Err(Box::from("No user found with that id")),
         }
     }
 
@@ -125,7 +125,7 @@ impl CalConnector {
 
     pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
         Ok(CalConnector::get_records::<Event>(
-            "SELECT id, time, name, caluserid name FROM event",
+            "SELECT id, starttime, endtime, name, caluserid, seriesid name FROM event",
         )?)
     }
 
@@ -136,6 +136,10 @@ impl CalConnector {
         let conn = Connection::open(DB_NAME)?;
 
         let mut stmt = conn.prepare(sql)?;
+        let mut stmt2 = conn.prepare(sql)?;
+        let idk = stmt2.column_count();
+        let idk = stmt2.column_names();
+        let rows1 = stmt2.query_map([], |row| Ok(T::construct(row)))?;
         let rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
 
         Ok(rows.filter_map(|e| e.ok()).collect())

@@ -2,6 +2,7 @@ use crate::models::cal::caluser::CalUser;
 use serde::Serialize;
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CalUserResponse { 
     user: Option<CalUser>,
     status_code: u32,

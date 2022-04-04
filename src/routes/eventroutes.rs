@@ -12,9 +12,9 @@ pub async fn create_event(create_event_req: web::Json<CreateEventRequest>) -> Ht
     let result = CalConnector::create_event(create_event_req.0);
 
     match result {
-        Ok(_) => HttpResponse::Created()
+        Ok(id) => HttpResponse::Created()
             .content_type(ContentType::json())
-            .body(CreateEventResponse::created().as_serde_string()),
+            .body(CreateEventResponse::created(id).as_serde_string()),
         Err(e) => HttpResponse::InternalServerError()
             .content_type(ContentType::json())
             .body(CreateEventResponse::error(e.to_string()).as_serde_string()),

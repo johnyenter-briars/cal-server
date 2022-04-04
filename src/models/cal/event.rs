@@ -37,27 +37,25 @@ impl Event {
 
 impl ConstructableFromSql<Event> for Event {
     fn construct(row: &Row) -> Event {
-        // Event {
-        //     id: row.get("id").expect("no 0th row??"),
-        //     // start_time: DateTime::from_utc(
-        //     //     NaiveDateTime::from_timestamp(row.get::<usize, i64>(1).expect("Yea idk"), 0),
-        //     //     Utc,
-        //     // ),
-        //     start_time: match row.get("") {
-        //         Ok(unix_time_stamp) => Some(DateTime::from_utc(
-        //             NaiveDateTime::from_timestamp(unix_time_stamp, 0),
-        //             Utc,
-        //         )),
-        //         Err(_) => None,
-        //     },
-        //     end_time: Some(DateTime::from_utc(
-        //         NaiveDateTime::from_timestamp(row.get::<usize, i64>(2).expect("Yea idk"), 0),
-        //         Utc,
-        //     )),
-        //     name: row.get(3).expect("no 2th row??"),
-        //     caluser_id: row.get(4).expect("no 3th row??"),
-        //     series_id: row.get(5).expect("no 3th row??"),
-        // }
-        panic!("")
+        Event {
+            id: row.get(0).expect("no 0th row??"),
+            start_time: match row.get(1) {
+                Ok(unix_time_stamp) => Some(DateTime::from_utc(
+                    NaiveDateTime::from_timestamp(unix_time_stamp, 0),
+                    Utc,
+                )),
+                Err(_) => None,
+            },
+            end_time: match row.get(2) {
+                Ok(unix_time_stamp) => Some(DateTime::from_utc(
+                    NaiveDateTime::from_timestamp(unix_time_stamp, 0),
+                    Utc,
+                )),
+                Err(_) => None,
+            },
+            name: row.get(3).expect("no 2th row??"),
+            caluser_id: row.get(4).expect("no 3th row??"),
+            series_id: row.get(5).expect("no 3th row??"),
+        }
     }
 }
