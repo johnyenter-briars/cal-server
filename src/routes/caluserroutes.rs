@@ -8,6 +8,7 @@ use crate::{
     },
 };
 use actix_web::{get, http::header::ContentType, post, web, HttpResponse};
+use uuid::Uuid;
 
 #[post("/api/caluser")]
 pub async fn create_caluser(create_user_req: web::Json<CreateCalUserRequest>) -> HttpResponse {
@@ -26,7 +27,19 @@ pub async fn create_caluser(create_user_req: web::Json<CreateCalUserRequest>) ->
 
 #[get("/api/caluser/{user_id}")]
 pub async fn get_caluser(user_id: web::Path<String>) -> HttpResponse {
-    let result = CalConnector::get_caluser(user_id.parse::<u32>().unwrap());
+    let uuid = match Uuid::parse_str(&user_id) {
+        Ok(id) => id,
+        Err(_) => {
+            return HttpResponse::BadRequest()
+                .content_type(ContentType::json())
+                .body(
+                    CalUserResponse::bad_request("Unable to parse UUID".to_string())
+                        .as_serde_string(),
+                )
+        }
+    };
+
+    let result = CalConnector::get_caluser(uuid);
 
     match result {
         Ok(user) => HttpResponse::Ok()

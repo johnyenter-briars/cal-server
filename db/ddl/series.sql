@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS series (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     repeateveryweek INTEGER NOT NULL,
     repeateonmon BOOLEAN NOT NULL CHECK (repeateonmon IN (0, 1)),
     repeateontues BOOLEAN NOT NULL CHECK (repeateontues IN (0, 1)),

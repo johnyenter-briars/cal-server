@@ -1,4 +1,4 @@
-use crate::models::cal::{event::Event, series::Series};
+use crate::models::cal::{series::Series};
 use serde::Serialize;
 
 #[derive(Serialize)]

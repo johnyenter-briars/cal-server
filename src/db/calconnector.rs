@@ -6,28 +6,29 @@ use crate::models::{
     },
     traits::construct::ConstructableFromSql,
 };
-use rand::Rng;
 use rusqlite::{params, Connection};
+use uuid::Uuid;
 use std::error::Error;
 
 pub struct CalConnector {}
 
 impl CalConnector {
-    pub fn create_caluser(first_name: &str, last_name: &str) -> Result<u32, Box<dyn Error>> {
+    pub fn create_caluser(first_name: &str, last_name: &str) -> Result<Uuid, Box<dyn Error>> {
         let new_id = CalConnector::generate_random_id();
+        println!("{}", new_id.to_string());
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
             &format!(
                 "insert into caluser (id, firstname, lastname) values (?1, ?2, ?3);"
             ),
-            params![new_id, first_name, last_name],
+            params![new_id.to_string(), first_name, last_name],
         )?;
 
         Ok(new_id)
     }
 
-    pub fn create_event(event_req: CreateEventRequest) -> Result<u32, Box<dyn Error>> {
+    pub fn create_event(event_req: CreateEventRequest) -> Result<Uuid, Box<dyn Error>> {
         if (event_req.start_time.is_none() && event_req.end_time.is_some())
             || (event_req.start_time.is_some() && event_req.end_time.is_none())
         {
@@ -42,7 +43,7 @@ impl CalConnector {
         conn.execute(
             "INSERT INTO event (id, starttime, endtime, name, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
             params![
-                new_id,
+                new_id.to_string(),
                 match event_req.start_time {
                     Some(t) => Some(t.timestamp()),
                     None => None,
@@ -52,15 +53,18 @@ impl CalConnector {
                     None => None,
                 },
                 event_req.name,
-                event_req.cal_user_id,
-                event_req.series_id,
+                event_req.cal_user_id.to_string(),
+                match event_req.series_id {
+                    Some(t) => Some(t.to_string()),
+                    None => None,
+                },
             ],
         )?;
 
         Ok(new_id)
     }
 
-    pub fn create_series(series_req: CreateSeriesRequest) -> Result<u32, Box<dyn Error>> {
+    pub fn create_series(series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
         let new_id = CalConnector::generate_random_id();
         let conn = Connection::open(DB_NAME)?;
 
@@ -78,7 +82,7 @@ impl CalConnector {
                 endson
             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
             params![
-                new_id,
+                new_id.to_string(),
                 series_req.repeat_every_week,
                 series_req.repeat_on_mon,
                 series_req.repeat_on_tues,
@@ -97,9 +101,9 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn get_caluser(id: u32) -> Result<CalUser, Box<dyn Error>> {
+    pub fn get_caluser(id: Uuid) -> Result<CalUser, Box<dyn Error>> {
         let mut users = CalConnector::get_records::<CalUser>(&format!(
-            "SELECT id, firstname, lastname FROM caluser where id = {id}"
+            "SELECT id, firstname, lastname FROM caluser where id = '{id}'"
         ))?;
 
         assert!(users.len() <= 1, "More than one users with that id! : (");
@@ -135,18 +139,15 @@ impl CalConnector {
     {
         let conn = Connection::open(DB_NAME)?;
 
-        let mut stmt = conn.prepare(sql)?;
-        let mut stmt2 = conn.prepare(sql)?;
-        let idk = stmt2.column_count();
-        let idk = stmt2.column_names();
-        let rows1 = stmt2.query_map([], |row| Ok(T::construct(row)))?;
+        let mut stmt = conn.prepare(sql)?; 
+
         let rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
 
         Ok(rows.filter_map(|e| e.ok()).collect())
     }
 
-    fn generate_random_id() -> u32 {
-        let mut rng = rand::thread_rng();
-        rng.gen()
+    fn generate_random_id() -> Uuid {
+        let my_uuid = Uuid::new_v4();
+        my_uuid
     }
 }
