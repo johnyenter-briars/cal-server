@@ -1,4 +1,3 @@
-pub mod caluser;
-pub mod event;
-pub mod error;
-pub mod responses;
+pub mod cal;
+pub mod server;
+pub mod traits;

@@ -1,9 +1,12 @@
 use std::{
     fs::{self, File},
-    io::Read,
+    io::{ErrorKind, Read},
 };
 
-use super::DB_NAME;
+use crate::models::server::requests::{createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest};
+
+use super::{DB_NAME, calconnector::CalConnector};
+use chrono::Utc;
 use rusqlite::{Connection, Result};
 
 pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Error>> {
@@ -11,20 +14,19 @@ pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Erro
 
     let conn = Connection::open(DB_NAME)?;
 
-    let create_caluser = get_sql_file_contents("create_caluser")?;
-    conn.execute(&create_caluser, [])?;
+    conn.execute(&get_sql_file_contents("series")?, [])?;
 
-    let create_event = get_sql_file_contents("create_event")?;
-    conn.execute(&create_event, [])?;
+    conn.execute(&get_sql_file_contents("caluser")?, [])?;
+
+    conn.execute(&get_sql_file_contents("event")?, [])?;
+
+    drop(conn);
 
     if init_test_data {
-        add_test_data(&conn)?;
+        add_test_data()?;
     }
 
-    match conn.close() {
-        Ok(_) => Ok(()),
-        Err((_, err)) => Err(Box::new(err)),
-    }
+    Ok(())
 }
 
 fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -35,19 +37,56 @@ fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::
 }
 
 fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
-    fs::remove_file(DB_NAME)?;
-    Ok(())
+    match fs::remove_file(DB_NAME) {
+        Ok(_) => Ok(()),
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => Ok(()),
+            e => Err(Box::from(format!("{:?}", e))),
+        },
+    }
 }
 
-fn add_test_data(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
-    conn.execute(
-        "insert into caluser (first_name, second_name) values ('Jim', 'Pankey');",
-        [],
-    )?;
-    conn.execute(
-        "insert into event (time, name, caluserid) values (100, 'test event', 1);",
-        [],
-    )?;
+fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
+    let user_id = CalConnector::create_caluser("Jim", "Pankey")?;
+
+    // An event that is 0 seconds long - not part of a series
+    CalConnector::create_event(CreateEventRequest{
+        name: "first test event".to_string(),
+        start_time: Some(Utc::now()),
+        end_time: Some(Utc::now()),
+        cal_user_id: user_id,
+        series_id: None,
+    })?;
+
+    //create the series
+    let series_id = CalConnector::create_series(CreateSeriesRequest {
+        repeat_every_week: 1,
+        repeat_on_mon: true,
+        repeat_on_tues: false,
+        repeat_on_wed: true,
+        repeat_on_thurs: false,
+        repeat_on_fri: false,
+        repeat_on_sat: false,
+        repeat_on_sun: false,
+        ends_on: Some(Utc::now()),
+    })?;
+    
+    //create two events for it
+    CalConnector::create_event(CreateEventRequest{
+        name: "first test event".to_string(),
+        start_time: Some(Utc::now()),
+        end_time: Some(Utc::now()),
+        cal_user_id: user_id,
+        series_id: Some(series_id),
+    })?;
+    
+    CalConnector::create_event(CreateEventRequest{
+        name: "first test event".to_string(),
+        start_time: Some(Utc::now()),
+        end_time: Some(Utc::now()),
+        cal_user_id: user_id,
+        series_id: Some(series_id),
+    })?;
 
     Ok(())
 }

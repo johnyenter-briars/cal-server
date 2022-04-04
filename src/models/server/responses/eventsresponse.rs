@@ -1,7 +1,8 @@
-use crate::models::event::Event;
+use crate::models::cal::event::Event;
 use serde::Serialize;
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventsResponse { 
     events: Vec<Event>,
     status_code: u32,
