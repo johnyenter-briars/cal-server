@@ -15,9 +15,9 @@ pub async fn create_caluser(create_user_req: web::Json<CreateCalUserRequest>) ->
         CalConnector::create_caluser(&create_user_req.0.first_name, &create_user_req.0.last_name);
 
     match result {
-        Ok(_) => HttpResponse::Created()
+        Ok(id) => HttpResponse::Created()
             .content_type(ContentType::json())
-            .body(CreateCalUserResponse::created().as_serde_string()),
+            .body(CreateCalUserResponse::created(id).as_serde_string()),
         Err(e) => HttpResponse::InternalServerError()
             .content_type(ContentType::json())
             .body(CreateCalUserResponse::error(e.to_string()).as_serde_string()),
@@ -29,9 +29,9 @@ pub async fn get_caluser(user_id: web::Path<String>) -> HttpResponse {
     let result = CalConnector::get_caluser(user_id.parse::<u32>().unwrap());
 
     match result {
-        Ok(u) => HttpResponse::Ok()
+        Ok(user) => HttpResponse::Ok()
             .content_type(ContentType::json())
-            .body(CalUserResponse::ok(u).as_serde_string()),
+            .body(CalUserResponse::ok(user).as_serde_string()),
         Err(e) => HttpResponse::InternalServerError()
             .content_type(ContentType::json())
             .body(CalUserResponse::error(e.to_string()).as_serde_string()),
