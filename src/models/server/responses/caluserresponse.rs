@@ -13,6 +13,10 @@ impl CalUserResponse  {
     pub fn ok(user: CalUser) -> Self {
         CalUserResponse{status_code: 200, message: "CalUser found".to_string(), user: Some(user)}
     }
+    
+    pub fn bad_request(message: String) -> Self {
+        CalUserResponse{status_code: 400, message, user: None }
+    }
 
     pub fn error(message: String) -> Self {
         CalUserResponse{status_code: 500, message, user: None}

@@ -1,13 +1,14 @@
 use chrono::{DateTime, Utc, NaiveDateTime};
 use rusqlite::Row;
 use serde::Serialize;
+use uuid::Uuid;
 
 use crate::models::traits::construct::ConstructableFromSql;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Series {
-    pub id: u32,
+    pub id: Uuid,
     pub repeat_every_week: u32,
     pub repeat_on_mon: bool,
     pub repeat_on_tues: bool,
@@ -22,7 +23,7 @@ pub struct Series {
 impl ConstructableFromSql<Series> for Series {
     fn construct(row: &Row) -> Series {
         Series {
-            id: row.get(0).expect("no 0th row??"),
+            id: Uuid::parse_str(&row.get::<usize, String>(0).expect("no 0th row??")).expect("THis really shouldnt fail") ,
             repeat_every_week: row.get(1).expect("no 0th row??"),
             repeat_on_mon: row.get(2).expect("no 0th row??"),
             repeat_on_tues: row.get(3).expect("no 0th row??"),

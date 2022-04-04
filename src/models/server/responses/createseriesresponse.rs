@@ -1,15 +1,16 @@
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateSeriesResponse {
     status_code: u32,
     message: String,
-    series_id: Option<u32>,
+    series_id: Option<Uuid>,
 }
 
 impl CreateSeriesResponse {
-    pub fn created(series_id: u32) -> Self {
+    pub fn created(series_id: Uuid) -> Self {
         CreateSeriesResponse {
             status_code: 201,
             message: "Event created".to_string(),
