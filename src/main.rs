@@ -1,6 +1,7 @@
 use cal_server::{
-    args::programargs::get_args, db::init::initiaize_db, server::build_and_run_server,
+    args::programargs::get_args, db::init::initiaize_db,
 };
+use cal_server::server::httpserver::build_and_run_server;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
