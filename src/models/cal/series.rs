@@ -32,13 +32,10 @@ impl ConstructableFromSql<Series> for Series {
             repeat_on_fri: row.get(6).expect("no 0th row??"),
             repeat_on_sat: row.get(7).expect("no 0th row??"),
             repeat_on_sun: row.get(8).expect("no 0th row??"),
-            ends_on: match row.get::<usize, Option<u32>>(9).expect("idk") {
-                Some(unix_time_stamp) => Some(DateTime::from_utc(
+            ends_on: row.get::<usize, Option<u32>>(9).expect("idk").map(|unix_time_stamp| DateTime::from_utc(
                     NaiveDateTime::from_timestamp(unix_time_stamp as i64, 0), //this is scary
                     Utc,
                 )),
-                None => None,
-            },
         }
     }
 }
