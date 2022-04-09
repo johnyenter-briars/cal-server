@@ -19,8 +19,6 @@ impl EventsResponse {
     }
     
     pub fn as_serde_string(self) -> String {
-        let response_string =
-            serde_json::to_string(&self).expect("Unable to parse response object!");
-        response_string
+        serde_json::to_string(&self).expect("Unable to parse response object!")
     }
 }

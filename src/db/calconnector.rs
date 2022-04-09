@@ -19,13 +19,10 @@ impl CalConnector {
             None =>  CalConnector::generate_random_id(),
         };
         
-        println!("{}", new_id.to_string());
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
-            &format!(
-                "insert into caluser (id, firstname, lastname) values (?1, ?2, ?3);"
-            ),
+            "insert into caluser (id, firstname, lastname) values (?1, ?2, ?3);",
             params![new_id.to_string(), first_name, last_name],
         )?;
 
@@ -48,20 +45,11 @@ impl CalConnector {
             "INSERT INTO event (id, starttime, endtime, name, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
             params![
                 new_id.to_string(),
-                match event_req.start_time {
-                    Some(t) => Some(t.timestamp()),
-                    None => None,
-                },
-                match event_req.end_time {
-                    Some(t) => Some(t.timestamp()),
-                    None => None,
-                },
+                event_req.start_time.map(|t| t.timestamp()),
+                event_req.end_time.map(|t| t.timestamp()),
                 event_req.name,
                 event_req.cal_user_id.to_string(),
-                match event_req.series_id {
-                    Some(t) => Some(t.to_string()),
-                    None => None,
-                },
+                event_req.series_id.map(|t| t.to_string()),
             ],
         )?;
 
@@ -95,10 +83,7 @@ impl CalConnector {
                 series_req.repeat_on_fri,
                 series_req.repeat_on_sat,
                 series_req.repeat_on_sun,
-                match series_req.ends_on {
-                    Some(t) => Some(t.timestamp()),
-                    None => None,
-                },
+                series_req.ends_on.map(|t| t.timestamp()),
             ],
         )?;
 
@@ -132,9 +117,9 @@ impl CalConnector {
     }
 
     pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
-        Ok(CalConnector::get_records::<Event>(
+        CalConnector::get_records::<Event>(
             "SELECT id, starttime, endtime, name, caluserid, seriesid name FROM event",
-        )?)
+        )
     }
 
     fn get_records<T>(sql: &str) -> Result<Vec<T>, Box<dyn Error>>
@@ -151,7 +136,7 @@ impl CalConnector {
     }
 
     fn generate_random_id() -> Uuid {
-        let my_uuid = Uuid::new_v4();
-        my_uuid
+        
+        Uuid::new_v4()
     }
 }
