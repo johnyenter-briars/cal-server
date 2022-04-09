@@ -8,6 +8,7 @@ use crate::models::server::requests::{createeventrequest::CreateEventRequest, cr
 use super::{DB_NAME, calconnector::CalConnector};
 use chrono::Utc;
 use rusqlite::{Connection, Result};
+use uuid::Uuid;
 
 pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Error>> {
     delete_database()?;
@@ -47,7 +48,8 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
-    let user_id = CalConnector::create_caluser("Jim", "Pankey")?;
+    let user_id = Uuid::parse_str("a188e597-29f9-4e2f-aa46-e3713d9939da")?;
+    CalConnector::create_caluser("Jim", "Pankey", Some(user_id))?;
 
     // An event that is 0 seconds long - not part of a series
     CalConnector::create_event(CreateEventRequest{
