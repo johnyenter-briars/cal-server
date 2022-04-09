@@ -16,6 +16,8 @@ pub struct CalArgs {
     /// Ip Address the application should bind to
     #[clap(short, long, default_value = "127.0.0.1")]
     pub ip: String,
+    #[clap(short, long)]
+    pub api_key : String,
 }
 
 pub fn get_args() -> CalArgs {

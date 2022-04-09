@@ -13,7 +13,7 @@ use uuid::Uuid;
 #[post("/api/caluser")]
 pub async fn create_caluser(create_user_req: web::Json<CreateCalUserRequest>) -> HttpResponse {
     let result =
-        CalConnector::create_caluser(&create_user_req.0.first_name, &create_user_req.0.last_name);
+        CalConnector::create_caluser(&create_user_req.0.first_name, &create_user_req.0.last_name, None);
 
     match result {
         Ok(id) => HttpResponse::Created()
