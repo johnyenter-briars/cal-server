@@ -13,8 +13,12 @@ use std::error::Error;
 pub struct CalConnector {}
 
 impl CalConnector {
-    pub fn create_caluser(first_name: &str, last_name: &str) -> Result<Uuid, Box<dyn Error>> {
-        let new_id = CalConnector::generate_random_id();
+    pub fn create_caluser(first_name: &str, last_name: &str, id: Option<Uuid>) -> Result<Uuid, Box<dyn Error>> {
+        let new_id = match id {
+            Some(id) => id,
+            None =>  CalConnector::generate_random_id(),
+        };
+        
         println!("{}", new_id.to_string());
         let conn = Connection::open(DB_NAME)?;
 
