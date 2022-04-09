@@ -22,7 +22,7 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        match req.headers().get("Api-Ley") {
+        match req.headers().get("x-api-key") {
             Some(k) => match k.to_str() {
                 Ok(s) => {
                     if s == self.key_value {
