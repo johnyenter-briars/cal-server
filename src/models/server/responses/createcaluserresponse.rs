@@ -1,3 +1,4 @@
+use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -9,21 +10,31 @@ pub struct CreateCalUserResponse {
     caluser_id: Option<Uuid>,
 }
 
-impl CreateCalUserResponse  {
-    pub fn created(id: Uuid) -> Self {
-        CreateCalUserResponse {
-            status_code: 201,
-            message: "Caluser created".to_string(),
-            caluser_id: Some(id),
-        }
+impl CreateCalUserResponse {
+    pub fn created(id: Uuid) -> HttpResponse {
+        HttpResponse::Created()
+            .content_type(ContentType::json())
+            .body(
+                CreateCalUserResponse {
+                    status_code: 201,
+                    message: "Caluser created".to_string(),
+                    caluser_id: Some(id),
+                }
+                .as_serde_string(),
+            )
     }
 
-    pub fn error(message: String) -> Self {
-        CreateCalUserResponse {
-            status_code: 500,
-            message,
-            caluser_id: None
-        }
+    pub fn error(message: String) -> HttpResponse {
+        HttpResponse::InternalServerError()
+            .content_type(ContentType::json())
+            .body(
+                CreateCalUserResponse {
+                    status_code: 500,
+                    message,
+                    caluser_id: None,
+                }
+                .as_serde_string(),
+            )
     }
 
     pub fn as_serde_string(self) -> String {
