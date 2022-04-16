@@ -7,18 +7,22 @@ use crate::models::{
     traits::construct::ConstructableFromSql,
 };
 use rusqlite::{params, Connection};
-use uuid::Uuid;
 use std::error::Error;
+use uuid::Uuid;
 
 pub struct CalConnector {}
 
 impl CalConnector {
-    pub fn create_caluser(first_name: &str, last_name: &str, id: Option<Uuid>) -> Result<Uuid, Box<dyn Error>> {
+    pub fn create_caluser(
+        first_name: &str,
+        last_name: &str,
+        id: Option<Uuid>,
+    ) -> Result<Uuid, Box<dyn Error>> {
         let new_id = match id {
             Some(id) => id,
-            None =>  CalConnector::generate_random_id(),
+            None => CalConnector::generate_random_id(),
         };
-        
+
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
@@ -104,9 +108,8 @@ impl CalConnector {
     }
 
     pub fn get_series(id: u32) -> Result<Series, Box<dyn Error>> {
-        let mut seri = CalConnector::get_records::<Series>(&format!(
-            "SELECT * FROM series where id = {id}"
-        ))?;
+        let mut seri =
+            CalConnector::get_records::<Series>(&format!("SELECT * FROM series where id = {id}"))?;
 
         assert!(seri.len() == 1, "More than one series with that id! : (");
 
@@ -128,15 +131,21 @@ impl CalConnector {
     {
         let conn = Connection::open(DB_NAME)?;
 
-        let mut stmt = conn.prepare(sql)?; 
+        let mut stmt = conn.prepare(sql)?;
 
-        let rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
+        let mapped_rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
 
-        Ok(rows.filter_map(|e| e.ok()).collect())
+        let unwraped_objects = mapped_rows
+            .filter_map(|e| match e.ok() {
+                Some(e2) => Some(e2.unwrap()),
+                None => None,
+            })
+            .collect();
+
+        Ok(unwraped_objects)
     }
 
     fn generate_random_id() -> Uuid {
-        
         Uuid::new_v4()
     }
 }

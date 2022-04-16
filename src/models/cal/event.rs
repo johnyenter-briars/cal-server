@@ -37,10 +37,10 @@ impl Event {
 }
 
 impl ConstructableFromSql<Event> for Event {
-    fn construct(row: &Row) -> Event {
+    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>> where Self: std::marker::Sized {
         // panic!("");
-        Event {
-            id: Uuid::parse_str(&row.get::<usize, String>(0).expect("no 0th row??")).expect("THis really shouldnt fail") ,
+        Ok(Event {
+            id: Uuid::parse_str(&row.get::<usize, String>(0)?)?,
             start_time: match row.get(1) {
                 Ok(unix_time_stamp) => Some(DateTime::from_utc(
                     NaiveDateTime::from_timestamp(unix_time_stamp, 0),
@@ -55,12 +55,12 @@ impl ConstructableFromSql<Event> for Event {
                 )),
                 Err(_) => None,
             },
-            name: row.get(3).expect("no 2th row??"),
-            caluser_id: Uuid::parse_str(&row.get::<usize, String>(4).expect("no 0th row??")).expect("THis really shouldnt fail") ,
+            name: row.get(3)?,
+            caluser_id: Uuid::parse_str(&row.get::<usize, String>(4)?)? ,
             series_id:  match row.get::<usize, String>(5) {
-                Ok(x) => Some(Uuid::parse_str(&x).expect("plz")),
+                Ok(x) => Some(Uuid::parse_str(&x)?),
                 Err(_) => None,
             },
-        }
+        })
     }
 }
