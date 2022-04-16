@@ -99,7 +99,9 @@ impl CalConnector {
             "SELECT id, firstname, lastname FROM caluser where id = '{id}'"
         ))?;
 
-        assert!(users.len() <= 1, "More than one users with that id! : (");
+        if users.len() <= 1 {
+            return Err(Box::from("More than one users with that id! : ("));
+        } 
 
         match users.pop() {
             Some(u) => Ok(u),
@@ -107,11 +109,13 @@ impl CalConnector {
         }
     }
 
-    pub fn get_series(id: u32) -> Result<Series, Box<dyn Error>> {
+    pub fn get_series(id: Uuid) -> Result<Series, Box<dyn Error>> {
         let mut seri =
-            CalConnector::get_records::<Series>(&format!("SELECT * FROM series where id = {id}"))?;
+            CalConnector::get_records::<Series>(&format!("SELECT * FROM series where id = '{id}'"))?;
 
-        assert!(seri.len() == 1, "More than one series with that id! : (");
+        if seri.len() <= 1 {
+            return Err(Box::from("More than one series with that id! : ("));
+        } 
 
         match seri.pop() {
             Some(u) => Ok(u),

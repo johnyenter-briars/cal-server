@@ -1,3 +1,4 @@
+use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -10,20 +11,30 @@ pub struct CreateEventResponse {
 }
 
 impl CreateEventResponse {
-    pub fn created(id: Uuid) -> Self {
-        CreateEventResponse {
-            status_code: 201,
-            message: "Event created".to_string(),
-            event_id: Some(id),
-        }
+    pub fn created(id: Uuid) -> HttpResponse {
+        HttpResponse::Created()
+            .content_type(ContentType::json())
+            .body(
+                CreateEventResponse {
+                    status_code: 201,
+                    message: "Event created".to_string(),
+                    event_id: Some(id),
+                }
+                .as_serde_string(),
+            )
     }
 
-    pub fn error(message: String) -> Self {
-        CreateEventResponse {
-            status_code: 500,
-            message,
-            event_id: None,
-        }
+    pub fn error(message: String) -> HttpResponse {
+        HttpResponse::InternalServerError()
+            .content_type(ContentType::json())
+            .body(
+                CreateEventResponse {
+                    status_code: 500,
+                    message,
+                    event_id: None,
+                }
+                .as_serde_string(),
+            )
     }
 
     pub fn as_serde_string(self) -> String {

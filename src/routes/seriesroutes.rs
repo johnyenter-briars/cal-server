@@ -5,7 +5,8 @@ use crate::{
         }, requests::createseriesrequest::CreateSeriesRequest,
     },
 };
-use actix_web::{get, http::header::ContentType, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
+use uuid::Uuid;
 
 #[post("/api/series")]
 pub async fn create_series(create_series_req: web::Json<CreateSeriesRequest>) -> HttpResponse {
@@ -13,25 +14,22 @@ pub async fn create_series(create_series_req: web::Json<CreateSeriesRequest>) ->
         CalConnector::create_series(create_series_req.0);
 
     match result {
-        Ok(series_id) => HttpResponse::Created()
-            .content_type(ContentType::json())
-            .body(CreateSeriesResponse::created(series_id).as_serde_string()),
-        Err(e) => HttpResponse::InternalServerError()
-            .content_type(ContentType::json())
-            .body(CreateSeriesResponse::error(e.to_string()).as_serde_string()),
+        Ok(series_id) => CreateSeriesResponse::created(series_id),
+        Err(e) => CreateSeriesResponse::error(e.to_string()),
     }
 }
 
 #[get("/api/series/{series_id}")]
 pub async fn get_series(series_id: web::Path<String>) -> HttpResponse {
-    let result = CalConnector::get_series(series_id.parse::<u32>().unwrap());
+    let uuid = match Uuid::parse_str(&series_id) {
+        Ok(id) => id,
+        Err(_) => return SeriesResponse::bad_request("Unable to parse UUID".to_string()),
+    };
+
+    let result = CalConnector::get_series(uuid);
 
     match result {
-        Ok(s) => HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(SeriesResponse::ok(s).as_serde_string()),
-        Err(e) => HttpResponse::InternalServerError()
-            .content_type(ContentType::json())
-            .body(SeriesResponse::error(e.to_string()).as_serde_string()),
+        Ok(s) => SeriesResponse::ok(s),
+        Err(e) => SeriesResponse::error(e.to_string()),
     }
 }

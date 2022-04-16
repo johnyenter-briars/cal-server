@@ -1,23 +1,40 @@
 use crate::models::cal::event::Event;
+use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EventsResponse { 
+pub struct EventsResponse {
     events: Vec<Event>,
     status_code: u32,
     message: String,
 }
 
 impl EventsResponse {
-    pub fn ok(events: Vec<Event>) -> Self {
-        EventsResponse{status_code: 200, message: "Events found".to_string(), events}
+    pub fn ok(events: Vec<Event>) -> HttpResponse {
+        HttpResponse::Ok().content_type(ContentType::json()).body(
+            EventsResponse {
+                status_code: 200,
+                message: "Events found".to_string(),
+                events,
+            }
+            .as_serde_string(),
+        )
     }
 
-    pub fn error(message: String) -> Self {
-        EventsResponse{status_code: 500, message, events: vec![]}
+    pub fn error(message: String) -> HttpResponse {
+        HttpResponse::InternalServerError()
+            .content_type(ContentType::json())
+            .body(
+                EventsResponse {
+                    status_code: 500,
+                    message,
+                    events: vec![],
+                }
+                .as_serde_string(),
+            )
     }
-    
+
     pub fn as_serde_string(self) -> String {
         serde_json::to_string(&self).expect("Unable to parse response object!")
     }
