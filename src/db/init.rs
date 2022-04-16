@@ -6,7 +6,7 @@ use std::{
 use crate::models::server::requests::{createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest};
 
 use super::{DB_NAME, calconnector::CalConnector};
-use chrono::Utc;
+use chrono::{Utc, Duration};
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
 
@@ -75,7 +75,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     
     //create two events for it
     CalConnector::create_event(CreateEventRequest{
-        name: "first test event".to_string(),
+        name: "second test event".to_string(),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
@@ -83,11 +83,29 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     })?;
     
     CalConnector::create_event(CreateEventRequest{
-        name: "first test event".to_string(),
+        name: "third test event".to_string(),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: Some(series_id),
+    })?;
+
+    // An event for yesterday
+    CalConnector::create_event(CreateEventRequest{
+        name: "yesterday".to_string(),
+        start_time: Some(Utc::now() -  Duration::days(1)),
+        end_time: Some(Utc::now() - Duration::days(1)),
+        cal_user_id: user_id,
+        series_id: None,
+    })?;
+
+    // An event for romorrow
+    CalConnector::create_event(CreateEventRequest{
+        name: "tomorrows event".to_string(),
+        start_time: Some(Utc::now() + Duration::days(1)),
+        end_time: Some(Utc::now() + Duration::days(1)),
+        cal_user_id: user_id,
+        series_id: None,
     })?;
 
     Ok(())

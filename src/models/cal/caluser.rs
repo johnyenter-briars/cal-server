@@ -12,11 +12,11 @@ pub struct CalUser {
 }
 
 impl ConstructableFromSql<CalUser> for CalUser {
-    fn construct(row: &Row) -> CalUser {
-        CalUser {
-            id: Uuid::parse_str(&row.get::<usize, String>(0).expect("no 0th row??")).expect("THis really shouldnt fail") ,
-            first_name: row.get(1).expect("no 1th row??"),
-            last_name: row.get(2).expect("no 2th row??"),
-        }
+    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>> where Self: std::marker::Sized {
+        Ok(CalUser {
+            id: Uuid::parse_str(&row.get::<usize, String>(0)?)? ,
+            first_name: row.get(1)?,
+            last_name: row.get(2)?,
+        })
     }
 }
