@@ -9,6 +9,7 @@ pub struct CalUser {
     pub id: Uuid,
     pub first_name: String,
     pub last_name: String,
+    pub api_key: String,
 }
 
 impl ConstructableFromSql<CalUser> for CalUser {
@@ -17,6 +18,7 @@ impl ConstructableFromSql<CalUser> for CalUser {
             id: Uuid::parse_str(&row.get::<usize, String>(0)?)? ,
             first_name: row.get(1)?,
             last_name: row.get(2)?,
+            api_key: row.get(3)?,
         })
     }
 }

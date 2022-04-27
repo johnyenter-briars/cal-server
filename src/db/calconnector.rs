@@ -17,6 +17,7 @@ impl CalConnector {
         first_name: &str,
         last_name: &str,
         id: Option<Uuid>,
+        api_key: &str,
     ) -> Result<Uuid, Box<dyn Error>> {
         let new_id = match id {
             Some(id) => id,
@@ -26,8 +27,8 @@ impl CalConnector {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
-            "insert into caluser (id, firstname, lastname) values (?1, ?2, ?3);",
-            params![new_id.to_string(), first_name, last_name],
+            "insert into caluser (id, firstname, lastname, apikey) values (?1, ?2, ?3, ?4);",
+            params![new_id.to_string(), first_name, last_name, api_key],
         )?;
 
         Ok(new_id)
@@ -95,12 +96,12 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn get_caluser(id: Uuid) -> Result<CalUser, Box<dyn Error>> {
+    pub fn get_caluser(uuid: Uuid) -> Result<CalUser, Box<dyn Error>> {
         let mut users = CalConnector::get_records::<CalUser>(&format!(
-            "SELECT id, firstname, lastname FROM caluser where id = '{id}'"
+            "SELECT id, firstname, lastname, apikey FROM caluser where id = '{uuid}'"
         ))?;
 
-        if users.len() <= 1 {
+        if users.len() != 1 {
             return Err(Box::from("More than one users with that id! : ("));
         }
 
@@ -115,7 +116,7 @@ impl CalConnector {
             "SELECT * FROM series where id = '{id}'"
         ))?;
 
-        if seri.len() <= 1 {
+        if seri.len() != 1 {
             return Err(Box::from("More than one series with that id! : ("));
         }
 
