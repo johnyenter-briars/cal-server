@@ -5,4 +5,5 @@ use serde::{Serialize, Deserialize};
 pub struct CreateCalUserRequest {
     pub first_name: String,
     pub last_name: String,
+    pub api_key: String,
 }
