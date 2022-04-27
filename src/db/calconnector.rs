@@ -46,12 +46,13 @@ impl CalConnector {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
-            "INSERT INTO event (id, starttime, endtime, name, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             params![
                 new_id.to_string(),
                 event_req.start_time.map(|t| t.timestamp()),
                 event_req.end_time.map(|t| t.timestamp()),
                 event_req.name,
+                event_req.description,
                 event_req.cal_user_id.to_string(),
                 event_req.series_id.map(|t| t.to_string()),
             ],
@@ -101,7 +102,7 @@ impl CalConnector {
 
         if users.len() <= 1 {
             return Err(Box::from("More than one users with that id! : ("));
-        } 
+        }
 
         match users.pop() {
             Some(u) => Ok(u),
@@ -110,22 +111,23 @@ impl CalConnector {
     }
 
     pub fn get_series(id: Uuid) -> Result<Series, Box<dyn Error>> {
-        let mut seri =
-            CalConnector::get_records::<Series>(&format!("SELECT * FROM series where id = '{id}'"))?;
+        let mut seri = CalConnector::get_records::<Series>(&format!(
+            "SELECT * FROM series where id = '{id}'"
+        ))?;
 
         if seri.len() <= 1 {
             return Err(Box::from("More than one series with that id! : ("));
-        } 
+        }
 
         match seri.pop() {
             Some(u) => Ok(u),
-            _ => unreachable!(),
+            None => Err(Box::from("No series found with that id")),
         }
     }
 
     pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
         CalConnector::get_records::<Event>(
-            "SELECT id, starttime, endtime, name, caluserid, seriesid name FROM event",
+            "SELECT id, starttime, endtime, name, description, caluserid, seriesid name FROM event",
         )
     }
 
@@ -139,14 +141,14 @@ impl CalConnector {
 
         let mapped_rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
 
-        let unwraped_objects = mapped_rows
+        let unwrapped_objects = mapped_rows
             .filter_map(|e| match e.ok() {
                 Some(e2) => Some(e2.unwrap()),
                 None => None,
             })
             .collect();
 
-        Ok(unwraped_objects)
+        Ok(unwrapped_objects)
     }
 
     fn generate_random_id() -> Uuid {
