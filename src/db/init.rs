@@ -49,7 +49,8 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
 
 fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     let user_id = Uuid::parse_str("a188e597-29f9-4e2f-aa46-e3713d9939da")?;
-    CalConnector::create_caluser("Jim", "Pankey", Some(user_id))?;
+    let api_key = "test";
+    CalConnector::create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     // An event that is 0 seconds long - not part of a series
     CalConnector::create_event(CreateEventRequest{
