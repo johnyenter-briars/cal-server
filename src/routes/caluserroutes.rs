@@ -11,17 +11,8 @@ use actix_web::{get, post, web, HttpResponse};
 use uuid::Uuid;
 
 #[post("/api/caluser")]
-pub async fn create_caluser(create_user_req: web::Json<CreateCalUserRequest>) -> HttpResponse {
-    let result = CalConnector::create_caluser(
-        &create_user_req.0.first_name,
-        &create_user_req.0.last_name,
-        None,
-    );
-
-    match result {
-        Ok(id) => CreateCalUserResponse::created(id),
-        Err(e) => CreateCalUserResponse::error(e.to_string()),
-    }
+pub async fn create_caluser(_: web::Json<CreateCalUserRequest>) -> HttpResponse {
+    return CreateCalUserResponse::error("This endpoint is deprecated".to_string());
 }
 
 #[get("/api/caluser/{user_id}")]
