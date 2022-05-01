@@ -25,7 +25,10 @@ pub async fn get_caluser(user_id: web::Path<String>) -> HttpResponse {
     let result = CalConnector::get_caluser(uuid);
 
     match result {
-        Ok(user) => CalUserResponse::ok(user),
+        Ok(option) => match option {
+            Some(s) => CalUserResponse::ok(s),
+            None => CalUserResponse::not_found(),
+        },
         Err(e) => CalUserResponse::error(e.to_string()),
     }
 }
