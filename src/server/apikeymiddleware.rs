@@ -25,80 +25,40 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        //TODO: refac these to look like: req.headers().get("x-user-id").map(|id| id.to_str().unwrap_or(Box::pin...)).unwrap_or(Box::pin...)
-        //// wrap the entire thing in an async block
-        // Box::pin(async move {
-        //     let user_id = req.headers()
-        //         .get("x-user-id")
-        //         .ok_or_else(|| actix_web::error::ErrorBadRequest("No UserId supplied in the request"))?;
+        let headers = req.headers().clone();
+        let fut = self.service.call(req);
+        return Box::pin(async move {
+            let user_id_header_value = headers.get("x-user-id").ok_or_else(|| {
+                actix_web::error::ErrorBadRequest("No UserId supplied in the request")
+            })?;
 
-        //     let user_id = user_id.to_str()
-        //         ok_or_else(|| actix_web::error::ErrorBadRequest("UserId has non ASCII chars")?;
+            let api_key_header_value = headers.get("x-api-key").ok_or_else(|| {
+                actix_web::error::ErrorBadRequest("No ApiKey supplied in the request")
+            })?;
 
-        //     // rest of the code...
-        // })
-
-        let user_id = match req.headers().get("x-user-id") {
-            Some(id) => match id.to_str() {
-                Ok(s) => s,
-                Err(_) => {
-                    return Box::pin(async move {
-                        Err(actix_web::error::ErrorBadRequest(
-                            "UserId has non ASCII chars",
-                        ))
-                    })
-                }
-            },
-            None => {
-                return Box::pin(async move {
-                    Err(actix_web::error::ErrorBadRequest(
-                        "No UserId supplied in the request",
-                    ))
-                });
-            }
-        };
-
-        let uuid = match Uuid::parse_str(&user_id) {
-            Ok(id) => id,
-            Err(_) => {
-                return Box::pin(async move {
-                    Err(actix_web::error::ErrorBadRequest(
-                        "GUID is improperly formatted",
-                    ))
-                });
-            }
-        };
-
-        let user = match CalConnector::get_caluser(uuid) {
-            Ok(u) => u,
-            Err(e) => {
-                return Box::pin(async move { Err(actix_web::error::ErrorBadRequest(e)) });
-            }
-        };
-
-        match req.headers().get("x-api-key") {
-            Some(k) => match k.to_str() {
-                Ok(s) => {
-                    if s == user.api_key {
-                        let fut = self.service.call(req);
-
-                        Box::pin(async move {
-                            let res = fut.await?;
-                            Ok(res)
-                        })
-                    } else {
-                        Box::pin(async move {
-                            Err(actix_web::error::ErrorUnauthorized("API key is invalid"))
-                        })
-                    }
-                }
-                Err(e) => Box::pin(async move { Err(actix_web::error::ErrorUnauthorized(e)) }),
-            },
-            None => Box::pin(async move {
-                Err(actix_web::error::ErrorUnauthorized(
-                    "API key not provided in request",
+            let user_id = user_id_header_value.to_str().or_else(|_| {
+                Err(actix_web::error::ErrorBadRequest(
+                    "Unable to convert UserId to string",
                 ))
-            }),
-        }
+            })?;
+
+            let api_key = api_key_header_value.to_str().or_else(|_| {
+                Err(actix_web::error::ErrorBadRequest(
+                    "Unable to convert ApiKey to string",
+                ))
+            })?;
+
+            let uuid = Uuid::parse_str(user_id)
+                .or_else(|_| Err(actix_web::error::ErrorBadRequest("Unable to parse GUID")))?;
+
+            let user = CalConnector::get_caluser(uuid)?;
+
+            if api_key != user.api_key {
+                return Err(actix_web::error::ErrorUnauthorized("API key is invalid"));
+            } else {
+                let res = fut.await?;
+                return Ok(res);
+            }
+        });
     }
 }
