@@ -51,7 +51,8 @@ where
             let uuid = Uuid::parse_str(user_id)
                 .or_else(|_| Err(actix_web::error::ErrorBadRequest("Unable to parse GUID")))?;
 
-            let user = CalConnector::get_caluser(uuid)?;
+            let user = CalConnector::get_caluser(uuid)?
+                .ok_or_else(|| actix_web::error::ErrorBadRequest("No User found with that Id"))?;
 
             if api_key != user.api_key {
                 return Err(actix_web::error::ErrorUnauthorized("API key is invalid"));
