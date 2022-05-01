@@ -96,34 +96,20 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn get_caluser(uuid: Uuid) -> Result<CalUser, Box<dyn Error>> {
+    pub fn get_caluser(uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
         let mut users = CalConnector::get_records::<CalUser>(&format!(
             "SELECT id, firstname, lastname, apikey FROM caluser where id = '{uuid}'"
         ))?;
 
-        if users.len() != 1 {
-            return Err(Box::from("More than one users with that id! : ("));
-        }
-
-        match users.pop() {
-            Some(u) => Ok(u),
-            None => Err(Box::from("No user found with that id")),
-        }
+        Ok(users.pop())
     }
 
-    pub fn get_series(id: Uuid) -> Result<Series, Box<dyn Error>> {
+    pub fn get_series(id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
         let mut seri = CalConnector::get_records::<Series>(&format!(
             "SELECT * FROM series where id = '{id}'"
         ))?;
 
-        if seri.len() != 1 {
-            return Err(Box::from("More than one series with that id! : ("));
-        }
-
-        match seri.pop() {
-            Some(u) => Ok(u),
-            None => Err(Box::from("No series found with that id")),
-        }
+        Ok(seri.pop())
     }
 
     pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
