@@ -22,6 +22,17 @@ impl SeriesResponse {
         )
     }
 
+    pub fn not_found() -> HttpResponse {
+        HttpResponse::NotFound().content_type(ContentType::json()).body(
+            SeriesResponse {
+                status_code: 400,
+                message: "No series found with that id".to_string(),
+                series: None,
+            }
+            .as_serde_string(),
+        )
+    }
+
     pub fn bad_request(message: String) -> HttpResponse {
         HttpResponse::BadRequest()
             .content_type(ContentType::json())

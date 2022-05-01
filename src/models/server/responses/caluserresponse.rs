@@ -22,6 +22,17 @@ impl CalUserResponse {
         )
     }
 
+    pub fn not_found() -> HttpResponse {
+        HttpResponse::NotFound().content_type(ContentType::json()).body(
+            CalUserResponse {
+                status_code: 400,
+                message: "No user found with that id".to_string(),
+                user: None,
+            }
+            .as_serde_string(),
+        )
+    }
+
     pub fn bad_request(message: String) -> HttpResponse {
         HttpResponse::BadRequest()
             .content_type(ContentType::json())

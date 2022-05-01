@@ -17,7 +17,7 @@ impl CreateSeriesResponse {
             .body(
                 CreateSeriesResponse {
                     status_code: 201,
-                    message: "Event created".to_string(),
+                    message: "Series created".to_string(),
                     series_id: Some(series_id),
                 }
                 .as_serde_string(),
