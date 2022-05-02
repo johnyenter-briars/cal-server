@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS event (
     starttime INTEGER,
     endtime INTEGER,
     name TEXT NOT NULL,
-    description TEXT NOT NULL,
+    description TEXT,
     caluserid INTEGER NOT NULL,
     seriesid INTEGER,
 

@@ -12,7 +12,7 @@ pub struct Event {
     pub start_time: Option<DateTime<Utc>>,
     pub end_time: Option<DateTime<Utc>>,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub caluser_id: Uuid,
     pub series_id: Option<Uuid>,
 }
