@@ -55,7 +55,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     // An event that is 0 seconds long - not part of a series
     CalConnector::create_event(CreateEventRequest{
         name: "first test event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
@@ -78,7 +78,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     //create two events for it
     CalConnector::create_event(CreateEventRequest{
         name: "second test event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
@@ -87,7 +87,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     
     CalConnector::create_event(CreateEventRequest{
         name: "third test event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
@@ -97,7 +97,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     // An event for yesterday
     CalConnector::create_event(CreateEventRequest{
         name: "yesterday".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now() -  Duration::days(1)),
         end_time: Some(Utc::now() - Duration::days(1)),
         cal_user_id: user_id,
@@ -107,7 +107,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     // An event for romorrow
     CalConnector::create_event(CreateEventRequest{
         name: "tomorrows event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now() + Duration::days(1)),
         end_time: Some(Utc::now() + Duration::days(1)),
         cal_user_id: user_id,
