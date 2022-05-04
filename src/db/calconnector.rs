@@ -3,6 +3,7 @@ use crate::models::{
     cal::{caluser::CalUser, event::Event, series::Series},
     server::requests::{
         createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
+        updateeventrequest::UpdateEventRequest,
     },
     traits::construct::ConstructableFromSql,
 };
@@ -34,7 +35,10 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn create_event(event_req: CreateEventRequest) -> Result<Uuid, Box<dyn Error>> {
+    pub fn create_event(
+        event_req: CreateEventRequest,
+        id: Option<Uuid>,
+    ) -> Result<Uuid, Box<dyn Error>> {
         if (event_req.start_time.is_none() && event_req.end_time.is_some())
             || (event_req.start_time.is_some() && event_req.end_time.is_none())
         {
@@ -43,7 +47,7 @@ impl CalConnector {
             ));
         }
 
-        let new_id = CalConnector::generate_random_id();
+        let new_id = id.unwrap_or(CalConnector::generate_random_id());
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
@@ -60,6 +64,41 @@ impl CalConnector {
         )?;
 
         Ok(new_id)
+    }
+
+    pub fn update_event(event_req: UpdateEventRequest) -> Result<Uuid, Box<dyn Error>> {
+        if (event_req.start_time.is_none() && event_req.end_time.is_some())
+            || (event_req.start_time.is_some() && event_req.end_time.is_none())
+        {
+            return Err(Box::from(
+                "You must construct an event with both start and end either both Some or None",
+            ));
+        }
+
+        let id = event_req.id;
+        let conn = Connection::open(DB_NAME)?;
+
+        conn.execute(
+            &format!(
+                "UPDATE event 
+                SET 
+                    name = '{}'
+                WHERE id = '{}';
+                ",
+                event_req.name, event_req.id
+            ),
+            params![],
+        )?;
+
+        // id.to_string(),
+        // event_req.start_time.map(|t| t.timestamp()),
+        // event_req.end_time.map(|t| t.timestamp()),
+        // event_req.name,
+        // event_req.description,
+        // event_req.cal_user_id.to_string(),
+        // event_req.series_id.map(|t| t.to_string()),
+
+        Ok(id)
     }
 
     pub fn create_series(series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {

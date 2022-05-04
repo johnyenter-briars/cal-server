@@ -60,7 +60,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: None,
-    })?;
+    }, None)?;
 
     //create the series
     let series_id = CalConnector::create_series(CreateSeriesRequest {
@@ -83,7 +83,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: Some(series_id),
-    })?;
+    }, None)?;
     
     CalConnector::create_event(CreateEventRequest{
         name: "third test event".to_string(),
@@ -92,7 +92,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: Some(series_id),
-    })?;
+    }, None)?;
 
     // An event for yesterday
     CalConnector::create_event(CreateEventRequest{
@@ -102,7 +102,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         end_time: Some(Utc::now() - Duration::days(1)),
         cal_user_id: user_id,
         series_id: None,
-    })?;
+    }, None)?;
 
     // An event for romorrow
     CalConnector::create_event(CreateEventRequest{
@@ -112,7 +112,7 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         end_time: Some(Utc::now() + Duration::days(1)),
         cal_user_id: user_id,
         series_id: None,
-    })?;
+    }, None)?;
 
     Ok(())
 }
