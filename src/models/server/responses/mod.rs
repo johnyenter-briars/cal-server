@@ -4,3 +4,4 @@ pub mod caluserresponse;
 pub mod createcaluserresponse;
 pub mod createseriesresponse;
 pub mod seriesresponse;
+pub mod updateeventresponse;

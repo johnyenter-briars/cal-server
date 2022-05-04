@@ -1,19 +1,59 @@
 use crate::{
     db::calconnector::CalConnector,
     models::server::{
-        requests::createeventrequest::CreateEventRequest,
-        responses::{createeventresponse::CreateEventResponse, eventsresponse::EventsResponse},
+        requests::{
+            createeventrequest::CreateEventRequest, updateeventrequest::UpdateEventRequest,
+        },
+        responses::{
+            createeventresponse::CreateEventResponse, eventsresponse::EventsResponse,
+            updateeventresponse::UpdateEventResponse,
+        },
     },
 };
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, put, web, HttpResponse};
 
 #[post("/api/event")]
 pub async fn create_event(create_event_req: web::Json<CreateEventRequest>) -> HttpResponse {
-    let result = CalConnector::create_event(create_event_req.0);
+    let result = CalConnector::create_event(create_event_req.0, None);
 
     match result {
         Ok(id) => CreateEventResponse::created(id),
         Err(e) => CreateEventResponse::error(e.to_string()),
+    }
+}
+
+#[put("/api/event")]
+pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> HttpResponse {
+    let events = match CalConnector::get_events() {
+        Ok(e) => e,
+        Err(e) => {
+            return UpdateEventResponse::error(e.to_string());
+        }
+    };
+
+    if !events.iter().any(|e| e.id == update_event_req.id) {
+        let create_event_req = CreateEventRequest {
+            start_time: update_event_req.start_time,
+            end_time: update_event_req.end_time,
+            name: update_event_req.name.clone(),
+            description: update_event_req.description.clone(),
+            cal_user_id: update_event_req.cal_user_id,
+            series_id: update_event_req.series_id,
+        };
+
+        let result = CalConnector::create_event(create_event_req, Some(update_event_req.id));
+
+        return match result {
+            Ok(id) => CreateEventResponse::created(id),
+            Err(e) => CreateEventResponse::error(e.to_string()),
+        };
+    }
+
+    let result = CalConnector::update_event(update_event_req.0);
+
+    match result {
+        Ok(id) => UpdateEventResponse::updated(id),
+        Err(e) => UpdateEventResponse::error(e.to_string()),
     }
 }
 

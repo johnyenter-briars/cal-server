@@ -1,6 +1,6 @@
 use crate::routes::{
     caluserroutes::{create_caluser, get_caluser},
-    eventroutes::{create_event, get_events},
+    eventroutes::{create_event, get_events, update_event},
     seriesroutes::{create_series, get_series},
 };
 use actix_web::{
@@ -22,6 +22,7 @@ pub async fn build_and_run_server(
             .service(create_event)
             .service(get_events)
             .service(create_caluser)
+            .service(update_event)
             .service(get_caluser)
             .service(create_series)
             .service(get_series)
