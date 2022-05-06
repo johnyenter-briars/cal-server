@@ -55,12 +55,12 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     // An event that is 0 seconds long - not part of a series
     CalConnector::create_event(CreateEventRequest{
         name: "first test event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: None,
-    })?;
+    }, None)?;
 
     //create the series
     let series_id = CalConnector::create_series(CreateSeriesRequest {
@@ -78,41 +78,41 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     //create two events for it
     CalConnector::create_event(CreateEventRequest{
         name: "second test event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: Some(series_id),
-    })?;
+    }, None)?;
     
     CalConnector::create_event(CreateEventRequest{
         name: "third test event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now()),
         end_time: Some(Utc::now()),
         cal_user_id: user_id,
         series_id: Some(series_id),
-    })?;
+    }, None)?;
 
     // An event for yesterday
     CalConnector::create_event(CreateEventRequest{
         name: "yesterday".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now() -  Duration::days(1)),
         end_time: Some(Utc::now() - Duration::days(1)),
         cal_user_id: user_id,
         series_id: None,
-    })?;
+    }, None)?;
 
     // An event for romorrow
     CalConnector::create_event(CreateEventRequest{
         name: "tomorrows event".to_string(),
-        description: "some description here".to_string(),
+        description: Some("some description here".to_string()),
         start_time: Some(Utc::now() + Duration::days(1)),
         end_time: Some(Utc::now() + Duration::days(1)),
         cal_user_id: user_id,
         series_id: None,
-    })?;
+    }, None)?;
 
     Ok(())
 }

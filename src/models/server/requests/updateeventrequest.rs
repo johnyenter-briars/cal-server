@@ -4,7 +4,8 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateEventRequest {
+pub struct UpdateEventRequest {
+    pub id: Uuid,
     pub start_time: Option<DateTime<Utc>>,
     pub end_time: Option<DateTime<Utc>>,
     pub name: String,
