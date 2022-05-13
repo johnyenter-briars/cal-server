@@ -3,10 +3,12 @@ use std::{
     io::{ErrorKind, Read},
 };
 
-use crate::models::server::requests::{createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest};
+use crate::models::server::requests::{
+    createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
+};
 
-use super::{DB_NAME, calconnector::CalConnector};
-use chrono::{Utc, Duration};
+use super::{calconnector::CalConnector, DB_NAME};
+use chrono::{Duration, Utc};
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
 
@@ -53,14 +55,31 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
     CalConnector::create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     // An event that is 0 seconds long - not part of a series
-    CalConnector::create_event(CreateEventRequest{
-        name: "first test event".to_string(),
-        description: Some("some description here".to_string()),
-        start_time: Some(Utc::now()),
-        end_time: Some(Utc::now()),
-        cal_user_id: user_id,
-        series_id: None,
-    }, None)?;
+    CalConnector::create_event(
+        CreateEventRequest {
+            name: "first test event".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now()),
+            end_time: Some(Utc::now() + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+        },
+        None,
+    )?;
+
+    for h in 0..2 {
+        CalConnector::create_event(
+            CreateEventRequest {
+                name: "first test event".to_string(),
+                description: Some("some description here".to_string()),
+                start_time: Some(Utc::now() + Duration::hours(h)),
+                end_time: Some(Utc::now() + Duration::hours(h) + Duration::hours(1)),
+                cal_user_id: user_id,
+                series_id: None,
+            },
+            None,
+        )?;
+    }
 
     //create the series
     let series_id = CalConnector::create_series(CreateSeriesRequest {
@@ -74,45 +93,57 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         repeat_on_sun: false,
         ends_on: Some(Utc::now()),
     })?;
-    
+
     //create two events for it
-    CalConnector::create_event(CreateEventRequest{
-        name: "second test event".to_string(),
-        description: Some("some description here".to_string()),
-        start_time: Some(Utc::now()),
-        end_time: Some(Utc::now()),
-        cal_user_id: user_id,
-        series_id: Some(series_id),
-    }, None)?;
-    
-    CalConnector::create_event(CreateEventRequest{
-        name: "third test event".to_string(),
-        description: Some("some description here".to_string()),
-        start_time: Some(Utc::now()),
-        end_time: Some(Utc::now()),
-        cal_user_id: user_id,
-        series_id: Some(series_id),
-    }, None)?;
+    CalConnector::create_event(
+        CreateEventRequest {
+            name: "second test event".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now()),
+            end_time: Some(Utc::now() + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: Some(series_id),
+        },
+        None,
+    )?;
+
+    CalConnector::create_event(
+        CreateEventRequest {
+            name: "third test event".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now()),
+            end_time: Some(Utc::now() + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: Some(series_id),
+        },
+        None,
+    )?;
 
     // An event for yesterday
-    CalConnector::create_event(CreateEventRequest{
-        name: "yesterday".to_string(),
-        description: Some("some description here".to_string()),
-        start_time: Some(Utc::now() -  Duration::days(1)),
-        end_time: Some(Utc::now() - Duration::days(1)),
-        cal_user_id: user_id,
-        series_id: None,
-    }, None)?;
+    CalConnector::create_event(
+        CreateEventRequest {
+            name: "yesterday".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() - Duration::days(1)),
+            end_time: Some(Utc::now() - Duration::days(1) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+        },
+        None,
+    )?;
 
     // An event for romorrow
-    CalConnector::create_event(CreateEventRequest{
-        name: "tomorrows event".to_string(),
-        description: Some("some description here".to_string()),
-        start_time: Some(Utc::now() + Duration::days(1)),
-        end_time: Some(Utc::now() + Duration::days(1)),
-        cal_user_id: user_id,
-        series_id: None,
-    }, None)?;
+    CalConnector::create_event(
+        CreateEventRequest {
+            name: "tomorrows event".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::days(1)),
+            end_time: Some(Utc::now() + Duration::days(1) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+        },
+        None,
+    )?;
 
     Ok(())
 }
