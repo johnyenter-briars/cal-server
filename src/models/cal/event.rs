@@ -20,7 +20,6 @@ pub struct Event {
 
 impl ConstructableFromSql<Event> for Event {
     fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>> where Self: std::marker::Sized {
-        // panic!("");
         Ok(Event {
             id: Uuid::parse_str(&row.get::<usize, String>(0)?)?,
             start_time: match row.get(1) {

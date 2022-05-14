@@ -7,6 +7,7 @@ use crate::models::{
     },
     traits::construct::ConstructableFromSql,
 };
+use core::fmt;
 use rusqlite::{params, Connection};
 use std::error::Error;
 use uuid::Uuid;
@@ -47,6 +48,10 @@ impl CalConnector {
             ));
         }
 
+        if event_req.start_time > event_req.end_time {
+            return Err(Box::from("End time may not be after start time"));
+        }
+
         let new_id = id.unwrap_or(CalConnector::generate_random_id());
         let conn = Connection::open(DB_NAME)?;
 
@@ -79,24 +84,24 @@ impl CalConnector {
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
-            &format!(
                 "UPDATE event 
                 SET 
-                    name = '{}'
-                WHERE id = '{}';
+                    starttime = ?1,
+                    endtime = ?2,
+                    name = ?3,
+                    description = ?4,
+                    seriesid = ?5
+                WHERE id = ?6;
                 ",
-                event_req.name, event_req.id
-            ),
-            params![],
+            params![
+                event_req.start_time.map(|t| t.timestamp()),
+                event_req.end_time.map(|t| t.timestamp()),
+                event_req.name,
+                event_req.description,
+                event_req.series_id.map(|t| t.to_string()),
+                event_req.id.to_string()
+            ],
         )?;
-
-        // id.to_string(),
-        // event_req.start_time.map(|t| t.timestamp()),
-        // event_req.end_time.map(|t| t.timestamp()),
-        // event_req.name,
-        // event_req.description,
-        // event_req.cal_user_id.to_string(),
-        // event_req.series_id.map(|t| t.to_string()),
 
         Ok(id)
     }
