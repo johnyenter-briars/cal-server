@@ -7,7 +7,7 @@ use crate::models::{
     },
     traits::construct::ConstructableFromSql,
 };
-use core::fmt;
+
 use rusqlite::{params, Connection};
 use std::error::Error;
 use uuid::Uuid;
@@ -173,10 +173,7 @@ impl CalConnector {
         let mapped_rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
 
         let unwrapped_objects = mapped_rows
-            .filter_map(|e| match e.ok() {
-                Some(e2) => Some(e2.unwrap()),
-                None => None,
-            })
+            .filter_map(|e| e.ok().map(|e2| e2.unwrap()))
             .collect();
 
         Ok(unwrapped_objects)
