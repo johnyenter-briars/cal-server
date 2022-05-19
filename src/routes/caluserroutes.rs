@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 #[post("/api/caluser")]
 pub async fn create_caluser(_: web::Json<CreateCalUserRequest>) -> HttpResponse {
-    return CreateCalUserResponse::error("This endpoint is deprecated".to_string());
+    CreateCalUserResponse::error("This endpoint is deprecated".to_string())
 }
 
 #[get("/api/caluser/{user_id}")]

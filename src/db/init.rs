@@ -12,7 +12,7 @@ use chrono::{Duration, Utc};
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
 
-pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Error>> {
+pub fn initiaize_db(init_test_data: bool, user_id: &str, api_key: &str) -> Result<(), Box<dyn std::error::Error>> {
     delete_database()?;
 
     let conn = Connection::open(DB_NAME)?;
@@ -26,7 +26,8 @@ pub fn initiaize_db(init_test_data: bool) -> Result<(), Box<dyn std::error::Erro
     drop(conn);
 
     if init_test_data {
-        add_test_data()?;
+        let user_id = Uuid::parse_str(user_id)?;
+        add_test_data(user_id, api_key)?;
     }
 
     Ok(())
@@ -49,9 +50,7 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
-    let user_id = Uuid::parse_str("a188e597-29f9-4e2f-aa46-e3713d9939da")?;
-    let api_key = "test";
+fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error::Error>> {
     CalConnector::create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     // An event that is 0 seconds long - not part of a series
@@ -67,19 +66,19 @@ fn add_test_data() -> Result<(), Box<dyn std::error::Error>> {
         None,
     )?;
 
-    for h in 0..2 {
-        CalConnector::create_event(
-            CreateEventRequest {
-                name: "first test event".to_string(),
-                description: Some("some description here".to_string()),
-                start_time: Some(Utc::now() + Duration::hours(h)),
-                end_time: Some(Utc::now() + Duration::hours(h) + Duration::hours(1)),
-                cal_user_id: user_id,
-                series_id: None,
-            },
-            None,
-        )?;
-    }
+    // for h in 0..2 {
+    //     CalConnector::create_event(
+    //         CreateEventRequest {
+    //             name: "first test event".to_string(),
+    //             description: Some("some description here".to_string()),
+    //             start_time: Some(Utc::now() + Duration::hours(h)),
+    //             end_time: Some(Utc::now() + Duration::hours(h) + Duration::hours(1)),
+    //             cal_user_id: user_id,
+    //             series_id: None,
+    //         },
+    //         None,
+    //     )?;
+    // }
 
     //create the series
     let series_id = CalConnector::create_series(CreateSeriesRequest {
