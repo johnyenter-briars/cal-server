@@ -9,7 +9,6 @@ use uuid::Uuid;
 use crate::db::calconnector::CalConnector;
 pub struct ApiKeyMiddleware<S> {
     pub service: S,
-    pub key_value: String,
 }
 
 impl<S, B> Service<ServiceRequest> for ApiKeyMiddleware<S>
