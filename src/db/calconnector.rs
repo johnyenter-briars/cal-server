@@ -40,17 +40,6 @@ impl CalConnector {
         event_req: CreateEventRequest,
         id: Option<Uuid>,
     ) -> Result<Uuid, Box<dyn Error>> {
-        if (event_req.start_time.is_none() && event_req.end_time.is_some())
-            || (event_req.start_time.is_some() && event_req.end_time.is_none())
-        {
-            return Err(Box::from(
-                "You must construct an event with both start and end either both Some or None",
-            ));
-        }
-
-        if event_req.start_time > event_req.end_time {
-            return Err(Box::from("End time may not be after start time"));
-        }
 
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(DB_NAME)?;

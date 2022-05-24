@@ -2,6 +2,8 @@ use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 use uuid::Uuid;
 
+use crate::models::traits::validate::Validatable;
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateEventResponse {
@@ -10,7 +12,7 @@ pub struct UpdateEventResponse {
     event_id: Option<Uuid>,
 }
 
-impl UpdateEventResponse  {
+impl UpdateEventResponse {
     pub fn created(id: Uuid) -> HttpResponse {
         HttpResponse::Created()
             .content_type(ContentType::json())
@@ -32,6 +34,19 @@ impl UpdateEventResponse  {
                     status_code: 200,
                     message: "Event updated".to_string(),
                     event_id: Some(id),
+                }
+                .as_serde_string(),
+            )
+    }
+
+    pub fn bad_request(message: String) -> HttpResponse {
+        HttpResponse::BadRequest()
+            .content_type(ContentType::json())
+            .body(
+                UpdateEventResponse {
+                    event_id: None,
+                    status_code: 400,
+                    message,
                 }
                 .as_serde_string(),
             )
