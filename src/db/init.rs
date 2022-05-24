@@ -12,7 +12,11 @@ use chrono::{Duration, Utc};
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
 
-pub fn initiaize_db(init_test_data: bool, user_id: &str, api_key: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn initiaize_db(
+    init_test_data: bool,
+    user_id: &str,
+    api_key: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     delete_database()?;
 
     let conn = Connection::open(DB_NAME)?;
@@ -56,7 +60,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
     // An event that is 0 seconds long - not part of a series
     CalConnector::create_event(
         CreateEventRequest {
-            name: "first test event".to_string(),
+            name: "event1".to_string(),
             description: Some("some description here".to_string()),
             start_time: Some(Utc::now()),
             end_time: Some(Utc::now() + Duration::hours(1)),
@@ -96,7 +100,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
     //create two events for it
     CalConnector::create_event(
         CreateEventRequest {
-            name: "second test event".to_string(),
+            name: "event2".to_string(),
             description: Some("some description here".to_string()),
             start_time: Some(Utc::now()),
             end_time: Some(Utc::now() + Duration::hours(1)),
@@ -108,7 +112,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
 
     CalConnector::create_event(
         CreateEventRequest {
-            name: "third test event".to_string(),
+            name: "event3".to_string(),
             description: Some("some description here".to_string()),
             start_time: Some(Utc::now()),
             end_time: Some(Utc::now() + Duration::hours(1)),
