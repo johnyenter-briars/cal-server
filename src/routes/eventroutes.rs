@@ -1,13 +1,16 @@
 use crate::{
     db::calconnector::CalConnector,
-    models::server::{
-        requests::{
-            createeventrequest::CreateEventRequest, updateeventrequest::UpdateEventRequest,
+    models::{
+        server::{
+            requests::{
+                createeventrequest::CreateEventRequest, updateeventrequest::UpdateEventRequest,
+            },
+            responses::{
+                createeventresponse::CreateEventResponse, eventsresponse::EventsResponse,
+                updateeventresponse::UpdateEventResponse,
+            },
         },
-        responses::{
-            createeventresponse::CreateEventResponse, eventsresponse::EventsResponse,
-            updateeventresponse::UpdateEventResponse,
-        },
+        traits::validate::Validatable,
     },
 };
 use actix_web::{get, post, put, web, HttpResponse};
@@ -41,11 +44,20 @@ pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> Ht
             series_id: update_event_req.series_id,
         };
 
+        let (pass, message) = validate_request(&create_event_req);
+
+        if !pass {
+            return CreateEventResponse::bad_request(message);
+        }
+
         let result = CalConnector::create_event(create_event_req, Some(update_event_req.id));
 
         return match result {
             Ok(id) => CreateEventResponse::created(id),
-            Err(e) => CreateEventResponse::error(e.to_string()),
+            Err(e) => {
+                println!("{:?}", e.to_string());
+                CreateEventResponse::error(e.to_string())
+            }
         };
     }
 
@@ -65,4 +77,19 @@ pub async fn get_events() -> HttpResponse {
         Ok(events) => EventsResponse::ok(events),
         Err(e) => EventsResponse::error(e.to_string()),
     }
+}
+
+pub fn validate_request(event_req: &dyn Validatable) -> (bool, String) {
+    let (pass, message) = event_req.time_is_populated();
+    if !pass {
+        return (pass, message);
+    }
+
+    let (pass, message) = event_req.end_after_start();
+
+    if !pass {
+        return (pass, message);
+    }
+
+    (true, "".to_string())
 }
