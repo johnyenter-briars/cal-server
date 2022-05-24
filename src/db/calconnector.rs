@@ -52,7 +52,7 @@ impl CalConnector {
             return Err(Box::from("End time may not be after start time"));
         }
 
-        let new_id = id.unwrap_or(CalConnector::generate_random_id());
+        let new_id = id.unwrap_or_else(|| CalConnector::generate_random_id());
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
