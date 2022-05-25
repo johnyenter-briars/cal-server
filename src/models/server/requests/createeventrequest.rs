@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::models::traits::validate::Validatable;
@@ -17,13 +17,10 @@ pub struct CreateEventRequest {
 
 impl Validatable for CreateEventRequest {
     fn time_is_populated(&self) -> (bool, String) {
-        if (self.start_time.is_none() && self.end_time.is_some())
-            || (self.start_time.is_some() && self.end_time.is_none())
-        {
+        if !(self.start_time.is_some() && self.end_time.is_some()) {
             return (
                 false,
-                "You must construct an event with both start and end either both Some or None"
-                    .to_string(),
+                "You must construct an event with both start and end both Some".to_string(),
             );
         }
 
@@ -34,7 +31,7 @@ impl Validatable for CreateEventRequest {
         if self.start_time > self.end_time {
             return (false, "End time may not be after start time".to_string());
         }
-        
+
         (true, "".to_string())
     }
 }
