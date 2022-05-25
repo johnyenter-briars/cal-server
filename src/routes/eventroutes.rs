@@ -19,7 +19,7 @@ use actix_web::{get, post, put, web, HttpResponse};
 
 #[post("/api/event")]
 pub async fn create_event(create_event_req: web::Json<CreateEventRequest>) -> HttpResponse {
-    return create_event_base(create_event_req.0);
+    create_event_base(create_event_req.0)
 }
 
 #[put("/api/event")]
@@ -77,10 +77,10 @@ fn create_event_base(create_event_req: CreateEventRequest) -> HttpResponse {
 
     let result = CalConnector::create_event(create_event_req, None);
 
-    return match result {
+    match result {
         Ok(id) => CreateEventResponse::created(id),
         Err(e) => CreateEventResponse::error(e.to_string()),
-    };
+    }
 }
 
 fn validate_request(event_req: &dyn Validatable) -> (bool, String) {

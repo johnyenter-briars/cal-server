@@ -2,7 +2,7 @@ use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::models::server::requests::createeventrequest::CreateEventRequest;
+
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
