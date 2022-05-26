@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::{
     db::calconnector::CalConnector,
     models::{
@@ -60,9 +58,7 @@ pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> Ht
 
 #[get("/api/event")]
 pub async fn get_events() -> HttpResponse {
-    let result = CalConnector::get_events();
-
-    match result {
+    match CalConnector::get_events() {
         Ok(events) => EventsResponse::ok(events),
         Err(e) => EventsResponse::error(e.to_string()),
     }
@@ -75,9 +71,7 @@ fn create_event_base(create_event_req: CreateEventRequest) -> HttpResponse {
         return CreateEventResponse::bad_request(message);
     }
 
-    let result = CalConnector::create_event(create_event_req, None);
-
-    match result {
+    match CalConnector::create_event(create_event_req, None) {
         Ok(id) => CreateEventResponse::created(id),
         Err(e) => CreateEventResponse::error(e.to_string()),
     }

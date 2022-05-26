@@ -22,9 +22,7 @@ pub async fn get_caluser(user_id: web::Path<String>) -> HttpResponse {
         Err(_) => return CalUserResponse::bad_request("Unable to parse UUID".to_string()),
     };
 
-    let result = CalConnector::get_caluser(uuid);
-
-    match result {
+    match CalConnector::get_caluser(uuid) {
         Ok(option) => match option {
             Some(s) => CalUserResponse::ok(s),
             None => CalUserResponse::not_found(),
