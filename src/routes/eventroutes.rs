@@ -48,9 +48,7 @@ pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> Ht
         return UpdateEventResponse::bad_request(message);
     }
 
-    let result = CalConnector::update_event(update_event_req.0);
-
-    match result {
+    match CalConnector::update_event(update_event_req.0) {
         Ok(id) => UpdateEventResponse::updated(id),
         Err(e) => UpdateEventResponse::error(e.to_string()),
     }
