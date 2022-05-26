@@ -8,12 +8,9 @@ use actix_web::{
     App, HttpServer,
 };
 
-use super::apikey::ApiKey;
-
 pub async fn build_and_run_server(
     domain: String,
     port: u16,
-    key_value: String,
 ) -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
@@ -27,7 +24,6 @@ pub async fn build_and_run_server(
             .service(create_series)
             .service(get_series)
             .wrap(Logger::new("%a %{User-Agent}i %r %s %U %{Content-Type}i"))
-            .wrap(ApiKey::new(key_value.clone()))
     })
     .bind((domain, port))?
     .run()

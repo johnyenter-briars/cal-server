@@ -7,7 +7,7 @@ use crate::models::{
     },
     traits::construct::ConstructableFromSql,
 };
-use core::fmt;
+
 use rusqlite::{params, Connection};
 use std::error::Error;
 use uuid::Uuid;
@@ -40,19 +40,8 @@ impl CalConnector {
         event_req: CreateEventRequest,
         id: Option<Uuid>,
     ) -> Result<Uuid, Box<dyn Error>> {
-        if (event_req.start_time.is_none() && event_req.end_time.is_some())
-            || (event_req.start_time.is_some() && event_req.end_time.is_none())
-        {
-            return Err(Box::from(
-                "You must construct an event with both start and end either both Some or None",
-            ));
-        }
 
-        if event_req.start_time > event_req.end_time {
-            return Err(Box::from("End time may not be after start time"));
-        }
-
-        let new_id = id.unwrap_or(CalConnector::generate_random_id());
+        let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(DB_NAME)?;
 
         conn.execute(
@@ -173,10 +162,7 @@ impl CalConnector {
         let mapped_rows = stmt.query_map([], |row| Ok(T::construct(row)))?;
 
         let unwrapped_objects = mapped_rows
-            .filter_map(|e| match e.ok() {
-                Some(e2) => Some(e2.unwrap()),
-                None => None,
-            })
+            .filter_map(|e| e.ok().map(|e2| e2.unwrap()))
             .collect();
 
         Ok(unwrapped_objects)
