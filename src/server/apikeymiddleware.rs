@@ -9,7 +9,6 @@ use uuid::Uuid;
 use crate::db::calconnector::CalConnector;
 pub struct ApiKeyMiddleware<S> {
     pub service: S,
-    pub key_value: String,
 }
 
 impl<S, B> Service<ServiceRequest> for ApiKeyMiddleware<S>
@@ -27,7 +26,7 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let headers = req.headers().clone();
         let fut = self.service.call(req);
-        return Box::pin(async move {
+        Box::pin(async move {
             let user_id_header_value = headers.get("x-user-id").ok_or_else(|| {
                 actix_web::error::ErrorBadRequest("No UserId supplied in the request")
             })?;
@@ -36,30 +35,25 @@ where
                 actix_web::error::ErrorBadRequest("No ApiKey supplied in the request")
             })?;
 
-            let user_id = user_id_header_value.to_str().or_else(|_| {
-                Err(actix_web::error::ErrorBadRequest(
+            let user_id = user_id_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
                     "Unable to convert UserId to string",
-                ))
-            })?;
+                ))?;
 
-            let api_key = api_key_header_value.to_str().or_else(|_| {
-                Err(actix_web::error::ErrorBadRequest(
+            let api_key = api_key_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
                     "Unable to convert ApiKey to string",
-                ))
-            })?;
+                ))?;
 
-            let uuid = Uuid::parse_str(user_id)
-                .or_else(|_| Err(actix_web::error::ErrorBadRequest("Unable to parse GUID")))?;
+            let uuid = Uuid::parse_str(user_id).map_err(|_| actix_web::error::ErrorBadRequest("Unable to parse GUID"))?;
 
             let user = CalConnector::get_caluser(uuid)?
                 .ok_or_else(|| actix_web::error::ErrorBadRequest("No User found with that Id"))?;
 
             if api_key != user.api_key {
-                return Err(actix_web::error::ErrorUnauthorized("API key is invalid"));
+                Err(actix_web::error::ErrorUnauthorized("API key is invalid"))
             } else {
                 let res = fut.await?;
-                return Ok(res);
+                Ok(res)
             }
-        });
+        })
     }
 }
