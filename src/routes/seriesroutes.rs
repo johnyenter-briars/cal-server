@@ -10,9 +10,7 @@ use uuid::Uuid;
 
 #[post("/api/series")]
 pub async fn create_series(create_series_req: web::Json<CreateSeriesRequest>) -> HttpResponse {
-    let result = CalConnector::create_series(create_series_req.0);
-
-    match result {
+    match CalConnector::create_series(create_series_req.0) {
         Ok(series_id) => CreateSeriesResponse::created(series_id),
         Err(e) => CreateSeriesResponse::error(e.to_string()),
     }
@@ -25,9 +23,7 @@ pub async fn get_series(series_id: web::Path<String>) -> HttpResponse {
         Err(_) => return SeriesResponse::bad_request("Unable to parse UUID".to_string()),
     };
 
-    let result = CalConnector::get_series(uuid);
-
-    match result {
+    match CalConnector::get_series(uuid) {
         Ok(option) => match option {
             Some(s) => SeriesResponse::ok(s),
             None => SeriesResponse::not_found(),
