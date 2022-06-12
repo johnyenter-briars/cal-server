@@ -6,10 +6,14 @@ use crate::server::httpserver::AppState;
 pub async fn save_database(state: web::Data<AppState>) -> HttpResponse {
     let connector = state.cal_connector.lock().unwrap();
 
-
-    HttpResponse::Ok()
-        .content_type(ContentType::plaintext())
-        .body("test")
+    match connector.save_database() {
+        Ok(uuid) => HttpResponse::Ok()
+            .content_type(ContentType::plaintext())
+            .body(uuid.to_string()),
+        Err(e) => HttpResponse::InternalServerError()
+            .content_type(ContentType::plaintext())
+            .body(e.to_string()),
+    }
 }
 
 #[post("/api/admin/database/list")]
