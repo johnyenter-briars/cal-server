@@ -16,7 +16,7 @@ pub struct CalArgs {
     /// Ip Address the application should bind to
     #[clap(short, long, default_value = "127.0.0.1")]
     pub ip: String,
-    /// API KEY for root user
+    /// API key for root user
     #[clap(short, long)]
     pub api_key : String,
     /// UserId for root user

@@ -1,0 +1,27 @@
+use actix_web::{http::header::ContentType, post, web, HttpResponse};
+
+use crate::server::httpserver::AppState;
+
+#[post("/api/admin/database/save")]
+pub async fn save_database(state: web::Data<AppState>) -> HttpResponse {
+    let connector = state.cal_connector.lock().unwrap();
+
+
+    HttpResponse::Ok()
+        .content_type(ContentType::plaintext())
+        .body("test")
+}
+
+#[post("/api/admin/database/list")]
+pub async fn list_database_saves() -> HttpResponse {
+    HttpResponse::InternalServerError()
+        .content_type(ContentType::plaintext())
+        .body("test")
+}
+
+#[post("/api/admin/database/load/{uuid}")]
+pub async fn load_database_version(uuid: web::Path<String>) -> HttpResponse {
+    HttpResponse::InternalServerError()
+        .content_type(ContentType::plaintext())
+        .body("test")
+}

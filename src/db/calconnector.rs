@@ -1,4 +1,4 @@
-use super::DB_NAME;
+use super::DB_FOLDER_PATH;
 use crate::models::{
     cal::{caluser::CalUser, event::Event, series::Series},
     server::requests::{
@@ -9,13 +9,29 @@ use crate::models::{
 };
 
 use rusqlite::{params, Connection};
-use std::error::Error;
+use std::{error::Error, fs};
 use uuid::Uuid;
 
-pub struct CalConnector {}
+pub struct CalConnector {
+    path_to_db: String,
+}
 
 impl CalConnector {
+    pub fn new() -> Self {
+        let path_to_db = format!("{}/CURRENT.db", DB_FOLDER_PATH);
+        CalConnector { path_to_db }
+    }
+
+    pub fn save_database(&self) -> Result<Uuid, Box<dyn Error>> {
+        let id = CalConnector::generate_random_id();
+
+        fs::copy(&self.path_to_db, format!("./db/database/{}.db", id))?;  
+
+        Ok(id)
+    }
+
     pub fn create_caluser(
+        &self,
         first_name: &str,
         last_name: &str,
         id: Option<Uuid>,
@@ -26,7 +42,7 @@ impl CalConnector {
             None => CalConnector::generate_random_id(),
         };
 
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(self.path_to_db)?;
 
         conn.execute(
             "insert into caluser (id, firstname, lastname, apikey) values (?1, ?2, ?3, ?4);",
@@ -37,12 +53,13 @@ impl CalConnector {
     }
 
     pub fn create_event(
+        &self,
         event_req: CreateEventRequest,
         id: Option<Uuid>,
     ) -> Result<Uuid, Box<dyn Error>> {
 
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(self.path_to_db)?;
 
         conn.execute(
             "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -60,7 +77,7 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn update_event(event_req: UpdateEventRequest) -> Result<Uuid, Box<dyn Error>> {
+    pub fn update_event(&self, event_req: UpdateEventRequest) -> Result<Uuid, Box<dyn Error>> {
         if (event_req.start_time.is_none() && event_req.end_time.is_some())
             || (event_req.start_time.is_some() && event_req.end_time.is_none())
         {
@@ -70,7 +87,7 @@ impl CalConnector {
         }
 
         let id = event_req.id;
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(self.path_to_db)?;
 
         conn.execute(
                 "UPDATE event 
@@ -95,9 +112,9 @@ impl CalConnector {
         Ok(id)
     }
 
-    pub fn create_series(series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
+    pub fn create_series(&self, series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
         let new_id = CalConnector::generate_random_id();
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(self.path_to_db)?;
 
         conn.execute(
             "INSERT INTO series (
@@ -129,33 +146,33 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn get_caluser(uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
-        let mut users = CalConnector::get_records::<CalUser>(&format!(
+    pub fn get_caluser(&self, uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
+        let mut users = self.get_records::<CalUser>(&format!(
             "SELECT id, firstname, lastname, apikey FROM caluser where id = '{uuid}'"
         ))?;
 
         Ok(users.pop())
     }
 
-    pub fn get_series(id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
-        let mut seri = CalConnector::get_records::<Series>(&format!(
+    pub fn get_series(&self, id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
+        let mut seri = self.get_records::<Series>(&format!(
             "SELECT * FROM series where id = '{id}'"
         ))?;
 
         Ok(seri.pop())
     }
 
-    pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
-        CalConnector::get_records::<Event>(
+    pub fn get_events(&self) -> Result<Vec<Event>, Box<dyn Error>> {
+        self.get_records::<Event>(
             "SELECT id, starttime, endtime, name, description, caluserid, seriesid name FROM event",
         )
     }
 
-    fn get_records<T>(sql: &str) -> Result<Vec<T>, Box<dyn Error>>
+    fn get_records<T>(&self, sql: &str) -> Result<Vec<T>, Box<dyn Error>>
     where
         T: ConstructableFromSql<T>,
     {
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(self.path_to_db)?;
 
         let mut stmt = conn.prepare(sql)?;
 
