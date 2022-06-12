@@ -27,33 +27,35 @@ where
         let headers = req.headers().clone();
         let fut = self.service.call(req);
         Box::pin(async move {
-            let user_id_header_value = headers.get("x-user-id").ok_or_else(|| {
-                actix_web::error::ErrorBadRequest("No UserId supplied in the request")
-            })?;
+            // let user_id_header_value = headers.get("x-user-id").ok_or_else(|| {
+            //     actix_web::error::ErrorBadRequest("No UserId supplied in the request")
+            // })?;
 
-            let api_key_header_value = headers.get("x-api-key").ok_or_else(|| {
-                actix_web::error::ErrorBadRequest("No ApiKey supplied in the request")
-            })?;
+            // let api_key_header_value = headers.get("x-api-key").ok_or_else(|| {
+            //     actix_web::error::ErrorBadRequest("No ApiKey supplied in the request")
+            // })?;
 
-            let user_id = user_id_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
-                    "Unable to convert UserId to string",
-                ))?;
+            // let user_id = user_id_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
+            //         "Unable to convert UserId to string",
+            //     ))?;
 
-            let api_key = api_key_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
-                    "Unable to convert ApiKey to string",
-                ))?;
+            // let api_key = api_key_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
+            //         "Unable to convert ApiKey to string",
+            //     ))?;
 
-            let uuid = Uuid::parse_str(user_id).map_err(|_| actix_web::error::ErrorBadRequest("Unable to parse GUID"))?;
+            // let uuid = Uuid::parse_str(user_id).map_err(|_| actix_web::error::ErrorBadRequest("Unable to parse GUID"))?;
 
-            let user = CalConnector::get_caluser(uuid)?
-                .ok_or_else(|| actix_web::error::ErrorBadRequest("No User found with that Id"))?;
+            // let user = CalConnector::get_caluser(uuid)?
+            //     .ok_or_else(|| actix_web::error::ErrorBadRequest("No User found with that Id"))?;
 
-            if api_key != user.api_key {
-                Err(actix_web::error::ErrorUnauthorized("API key is invalid"))
-            } else {
-                let res = fut.await?;
-                Ok(res)
-            }
+            // if api_key != user.api_key {
+            //     Err(actix_web::error::ErrorUnauthorized("API key is invalid"))
+            // } else {
+            //     let res = fut.await?;
+            //     Ok(res)
+            // }
+            let res = fut.await?;
+            Ok(res)
         })
     }
 }
