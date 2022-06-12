@@ -9,7 +9,7 @@ async fn main() -> std::io::Result<()> {
     let connector = CalConnector::new();
 
     if args.reset_db {
-        let init_result = initiaize_db(args.test_data, &args.user_id, &args.api_key);
+        let init_result = initiaize_db(args.test_data, &args.user_id, &args.api_key, &connector);
         if init_result.is_err() {
             panic!("Failure to init the DB: {:?}", init_result.err().unwrap());
         }

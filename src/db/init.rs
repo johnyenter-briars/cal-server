@@ -16,7 +16,7 @@ pub fn initiaize_db(
     init_test_data: bool,
     user_id: &str,
     api_key: &str,
-    conn: CalConnector
+    conn: &CalConnector
 ) -> Result<(), Box<dyn std::error::Error>> {
     delete_database()?;
 
@@ -59,7 +59,7 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn add_test_data(user_id: Uuid, api_key: &str, conn: CalConnector) -> Result<(), Box<dyn std::error::Error>> {
+fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<(), Box<dyn std::error::Error>> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     // An event that is 0 seconds long - not part of a series

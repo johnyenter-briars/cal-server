@@ -11,18 +11,19 @@ use crate::{
             },
         },
         traits::validate::Validatable,
-    },
+    }, server::httpserver::AppState,
 };
 use actix_web::{get, post, put, web, HttpResponse};
 
 #[post("/api/event")]
-pub async fn create_event(create_event_req: web::Json<CreateEventRequest>) -> HttpResponse {
-    create_event_base(create_event_req.0)
+pub async fn create_event(create_event_req: web::Json<CreateEventRequest>, state: web::Data<AppState>) -> HttpResponse {
+    create_event_base(create_event_req.0, &state.cal_connector.lock().unwrap())
 }
 
 #[put("/api/event")]
-pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> HttpResponse {
-    let events = match CalConnector::get_events() {
+pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>, state: web::Data<AppState>) -> HttpResponse {
+    let cal_connector = state.cal_connector.lock().unwrap();
+    let events = match cal_connector.get_events() {
         Ok(e) => e,
         Err(e) => {
             return UpdateEventResponse::error(e.to_string());
@@ -39,7 +40,7 @@ pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> Ht
             series_id: update_event_req.series_id,
         };
 
-        return create_event_base(create_event_req);
+        return create_event_base(create_event_req, &cal_connector);
     }
 
     let (pass, message) = validate_request(&update_event_req.0);
@@ -48,28 +49,28 @@ pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>) -> Ht
         return UpdateEventResponse::bad_request(message);
     }
 
-    match CalConnector::update_event(update_event_req.0) {
+    match cal_connector.update_event(update_event_req.0) {
         Ok(id) => UpdateEventResponse::updated(id),
         Err(e) => UpdateEventResponse::error(e.to_string()),
     }
 }
 
 #[get("/api/event")]
-pub async fn get_events() -> HttpResponse {
-    match CalConnector::get_events() {
+pub async fn get_events(state: web::Data<AppState>) -> HttpResponse {
+    match state.cal_connector.lock().unwrap().get_events() {
         Ok(events) => EventsResponse::ok(events),
         Err(e) => EventsResponse::error(e.to_string()),
     }
 }
 
-fn create_event_base(create_event_req: CreateEventRequest) -> HttpResponse {
+fn create_event_base(create_event_req: CreateEventRequest, cal_connector: &CalConnector) -> HttpResponse {
     let (pass, message) = validate_request(&create_event_req);
 
     if !pass {
         return CreateEventResponse::bad_request(message);
     }
 
-    match CalConnector::create_event(create_event_req, None) {
+    match cal_connector.create_event(create_event_req, None) {
         Ok(id) => CreateEventResponse::created(id),
         Err(e) => CreateEventResponse::error(e.to_string()),
     }

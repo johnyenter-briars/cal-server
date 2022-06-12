@@ -42,7 +42,7 @@ impl CalConnector {
             None => CalConnector::generate_random_id(),
         };
 
-        let conn = Connection::open(self.path_to_db)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
             "insert into caluser (id, firstname, lastname, apikey) values (?1, ?2, ?3, ?4);",
@@ -59,7 +59,7 @@ impl CalConnector {
     ) -> Result<Uuid, Box<dyn Error>> {
 
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
-        let conn = Connection::open(self.path_to_db)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
             "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -87,7 +87,7 @@ impl CalConnector {
         }
 
         let id = event_req.id;
-        let conn = Connection::open(self.path_to_db)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
                 "UPDATE event 
@@ -114,7 +114,7 @@ impl CalConnector {
 
     pub fn create_series(&self, series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
         let new_id = CalConnector::generate_random_id();
-        let conn = Connection::open(self.path_to_db)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
             "INSERT INTO series (
@@ -172,7 +172,7 @@ impl CalConnector {
     where
         T: ConstructableFromSql<T>,
     {
-        let conn = Connection::open(self.path_to_db)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         let mut stmt = conn.prepare(sql)?;
 
