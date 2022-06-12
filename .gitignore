@@ -3,3 +3,4 @@ cal.db
 .vscode/
 Cargo.lock
 run.sh
+*.db

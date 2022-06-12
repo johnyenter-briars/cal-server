@@ -8,6 +8,7 @@ use crate::models::{
     traits::construct::ConstructableFromSql,
 };
 
+use chrono::Utc;
 use rusqlite::{params, Connection};
 use std::{error::Error, fs};
 use uuid::Uuid;
@@ -25,7 +26,10 @@ impl CalConnector {
     pub fn save_database(&self) -> Result<Uuid, Box<dyn Error>> {
         let id = CalConnector::generate_random_id();
 
-        fs::copy(&self.path_to_db, format!("./db/database/{}.db", id))?;  
+        fs::copy(
+            &self.path_to_db,
+            format!("./db/database/{}-{}.db", id, Utc::now()),
+        )?;
 
         Ok(id)
     }
@@ -57,7 +61,6 @@ impl CalConnector {
         event_req: CreateEventRequest,
         id: Option<Uuid>,
     ) -> Result<Uuid, Box<dyn Error>> {
-
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(&self.path_to_db)?;
 
@@ -90,7 +93,7 @@ impl CalConnector {
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-                "UPDATE event 
+            "UPDATE event 
                 SET 
                     starttime = ?1,
                     endtime = ?2,
@@ -155,9 +158,8 @@ impl CalConnector {
     }
 
     pub fn get_series(&self, id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
-        let mut seri = self.get_records::<Series>(&format!(
-            "SELECT * FROM series where id = '{id}'"
-        ))?;
+        let mut seri =
+            self.get_records::<Series>(&format!("SELECT * FROM series where id = '{id}'"))?;
 
         Ok(seri.pop())
     }
