@@ -1,18 +1,17 @@
 use actix_web::{http::header::ContentType, post, web, HttpResponse};
 
-use crate::server::httpserver::AppState;
+use crate::{
+    models::server::responses::savedatabaseresponse::SaveDatabaseResult,
+    server::httpserver::AppState,
+};
 
 #[post("/api/admin/database/save")]
 pub async fn save_database(state: web::Data<AppState>) -> HttpResponse {
     let connector = state.cal_connector.lock().unwrap();
 
     match connector.save_database() {
-        Ok(uuid) => HttpResponse::Ok()
-            .content_type(ContentType::plaintext())
-            .body(uuid.to_string()),
-        Err(e) => HttpResponse::InternalServerError()
-            .content_type(ContentType::plaintext())
-            .body(e.to_string()),
+        Ok(uuid) => SaveDatabaseResult::ok(uuid),
+        Err(e) => SaveDatabaseResult::error(e.to_string()),
     }
 }
 
