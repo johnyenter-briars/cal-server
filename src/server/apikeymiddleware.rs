@@ -1,12 +1,14 @@
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse},
-    Error,
+    web, Error,
 };
 
 use futures_util::future::LocalBoxFuture;
 use uuid::Uuid;
 
 use crate::db::calconnector::CalConnector;
+
+use super::httpserver::AppState;
 pub struct ApiKeyMiddleware<S> {
     pub service: S,
 }
@@ -24,26 +26,30 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
+        // let state = req.app_data::<web::Data<AppState>>().unwrap();
+        // let cal_connector = state.cal_connector.lock().unwrap();
         let headers = req.headers().clone();
         let fut = self.service.call(req);
+        
         Box::pin(async move {
-            // let user_id_header_value = headers.get("x-user-id").ok_or_else(|| {
-            //     actix_web::error::ErrorBadRequest("No UserId supplied in the request")
-            // })?;
+            let user_id_header_value = headers.get("x-user-id").ok_or_else(|| {
+                actix_web::error::ErrorBadRequest("No UserId supplied in the request")
+            })?;
 
-            // let api_key_header_value = headers.get("x-api-key").ok_or_else(|| {
-            //     actix_web::error::ErrorBadRequest("No ApiKey supplied in the request")
-            // })?;
+            let api_key_header_value = headers.get("x-api-key").ok_or_else(|| {
+                actix_web::error::ErrorBadRequest("No ApiKey supplied in the request")
+            })?;
 
-            // let user_id = user_id_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
-            //         "Unable to convert UserId to string",
-            //     ))?;
+            let user_id = user_id_header_value.to_str().map_err(|_| {
+                actix_web::error::ErrorBadRequest("Unable to convert UserId to string")
+            })?;
 
-            // let api_key = api_key_header_value.to_str().map_err(|_| actix_web::error::ErrorBadRequest(
-            //         "Unable to convert ApiKey to string",
-            //     ))?;
+            let api_key = api_key_header_value.to_str().map_err(|_| {
+                actix_web::error::ErrorBadRequest("Unable to convert ApiKey to string")
+            })?;
 
-            // let uuid = Uuid::parse_str(user_id).map_err(|_| actix_web::error::ErrorBadRequest("Unable to parse GUID"))?;
+            let uuid = Uuid::parse_str(user_id)
+                .map_err(|_| actix_web::error::ErrorBadRequest("Unable to parse GUID"))?;
 
             // let user = CalConnector::get_caluser(uuid)?
             //     .ok_or_else(|| actix_web::error::ErrorBadRequest("No User found with that Id"))?;
