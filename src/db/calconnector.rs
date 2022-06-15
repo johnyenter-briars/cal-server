@@ -35,8 +35,8 @@ impl CalConnector {
     }
 
     pub fn list_databases(&self) -> Result<Vec<String>, Box<dyn Error>> {
-        let idk: Vec<String> = fs::read_dir("./change_this_path")?.into_iter().map(|f| {
-            let d = f.unwrap().path().display();
+        let _idk: Vec<String> = fs::read_dir("./change_this_path")?.into_iter().map(|f| {
+            let _d = f.unwrap().path().display();
 
             "idk".to_string()
         }).collect();

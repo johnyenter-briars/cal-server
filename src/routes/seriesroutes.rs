@@ -1,5 +1,4 @@
 use crate::{
-    db::calconnector::CalConnector,
     models::server::{
         requests::createseriesrequest::CreateSeriesRequest,
         responses::{createseriesresponse::CreateSeriesResponse, seriesresponse::SeriesResponse},

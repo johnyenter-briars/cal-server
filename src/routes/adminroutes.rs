@@ -23,7 +23,7 @@ pub async fn list_database_saves() -> HttpResponse {
 }
 
 #[post("/api/admin/database/load/{uuid}")]
-pub async fn load_database_version(uuid: web::Path<String>) -> HttpResponse {
+pub async fn load_database_version(_uuid: web::Path<String>) -> HttpResponse {
     HttpResponse::InternalServerError()
         .content_type(ContentType::plaintext())
         .body("test")
