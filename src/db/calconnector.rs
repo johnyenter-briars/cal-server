@@ -201,3 +201,9 @@ impl CalConnector {
         Uuid::new_v4()
     }
 }
+
+impl Default for CalConnector {
+    fn default() -> Self {
+        Self::new()
+    }
+}
