@@ -1,4 +1,4 @@
-use crate::models::cal::caluser::CalUser;
+
 use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 use uuid::Uuid;
