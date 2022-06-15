@@ -8,11 +8,13 @@ use crate::{routes::{
 use actix_web::web;
 use actix_web::{middleware::Logger, App, HttpServer};
 
+use super::apikey::ApiKey;
+
 pub struct AppState {
     pub cal_connector: Mutex<CalConnector>, // <- Mutex is necessary to mutate safely across threads
 }
 
-pub async fn build_and_run_server(domain: String, port: u16, cal_connector: CalConnector) -> std::io::Result<()> {
+pub async fn build_and_run_server(domain: String, port: u16, cal_connector: CalConnector, key_value: String) -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let app_state = web::Data::new(AppState {
@@ -31,6 +33,7 @@ pub async fn build_and_run_server(domain: String, port: u16, cal_connector: CalC
             .service(save_database)
             .wrap(Logger::new("%a %{User-Agent}i %r %s %U %{Content-Type}i"))
             .app_data(app_state.clone())
+            .wrap(ApiKey::new(key_value.clone()))
     })
     .bind((domain, port))?
     .run()

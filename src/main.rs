@@ -15,5 +15,5 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    build_and_run_server(args.ip, args.port, connector).await
+    build_and_run_server(args.ip, args.port, connector, args.api_key).await
 }
