@@ -49,7 +49,7 @@ impl CalConnector {
             })
             .collect();
 
-        v.retain(|s| *s != ".gitkeep".to_string() && *s != DB_INITIAL_NAME.to_string());
+        v.retain(|s| s != ".gitkeep" && s != DB_INITIAL_NAME);
 
         Ok(v)
     }
@@ -77,18 +77,6 @@ impl CalConnector {
             },
             None => Err(Box::from("No database save found with that id!")),
         }
-
-        // for save in saves {
-        //     if save.contains(&id.to_string()) {
-        //         let database_to_set = format!("{}{}", DB_FOLDER_PATH, save);
-        //         fs::copy(&database_to_set, &self.path_to_db)?;
-
-        //         if self.delete_old_saves {
-        //             fs::remove_file(database_to_set)?;
-        //         }
-        //     }
-        // }
-        // Ok(())
     }
 
     pub fn create_caluser(
