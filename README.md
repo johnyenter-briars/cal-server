@@ -33,6 +33,7 @@ The binary currently supports several command line arguments.
 | -p | --port <PORT> |         Port for the application should bind to [default: 8080]
 | -r | --reset-db |             Whether or not to delete and refresh the database before starup
 | -t | --test-data |           Populate the database with test data
+| -d | --delete-old-saves |           Database should delete the old save file when it's loaded into the database
 | -u | --user-id <USER_ID> |    UserId for root user
 | -V | --version |              Print version information
 

@@ -1,7 +1,8 @@
 use actix_web::{http::header::ContentType, get, post, web, HttpResponse};
+use uuid::Uuid;
 
 use crate::{
-    models::server::responses::{savedatabaseresponse::SaveDatabaseResult, listsavesresponse::ListSavesResponse},
+    models::server::responses::{savedatabaseresponse::SaveDatabaseResult, listsavesresponse::ListSavesResponse, loaddatabaseresponse::LoadDatabaseResponse},
     server::httpserver::AppState,
 };
 
@@ -27,7 +28,12 @@ pub async fn list_database_saves(state: web::Data<AppState>) -> HttpResponse {
 
 #[post("/api/admin/database/load/{uuid}")]
 pub async fn load_database_version(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
-    HttpResponse::InternalServerError()
-        .content_type(ContentType::plaintext())
-        .body("test")
+    let connector = state.cal_connector.lock().unwrap();
+
+    let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
+
+    match connector.load_database_save(id) {
+        Ok(_) => LoadDatabaseResponse::ok(),
+        Err(e) => LoadDatabaseResponse::error(e.to_string()),
+    }
 }
