@@ -1,4 +1,4 @@
-use super::DB_NAME;
+use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::models::{
     cal::{caluser::CalUser, event::Event, series::Series},
     server::requests::{
@@ -8,14 +8,79 @@ use crate::models::{
     traits::construct::ConstructableFromSql,
 };
 
+use chrono::Utc;
 use rusqlite::{params, Connection};
-use std::error::Error;
+use std::{error::Error, fs};
 use uuid::Uuid;
 
-pub struct CalConnector {}
+pub struct CalConnector {
+    path_to_db: String,
+    delete_old_saves: bool,
+}
 
 impl CalConnector {
+    pub fn new(delete_old_saves: bool) -> Self {
+        let path_to_db = format!("{}{}", DB_FOLDER_PATH, DB_INITIAL_NAME);
+        CalConnector {
+            path_to_db,
+            delete_old_saves,
+        }
+    }
+
+    pub fn save_database(&self) -> Result<Uuid, Box<dyn Error>> {
+        let id = CalConnector::generate_random_id();
+
+        fs::copy(
+            &self.path_to_db,
+            format!("{}{}={}.db", DB_FOLDER_PATH, id, Utc::now()),
+        )?;
+
+        Ok(id)
+    }
+
+    ///TODO: this function could probably be a little more idiomatic
+    pub fn list_database_saves(&self) -> Result<Vec<String>, Box<dyn Error>> {
+        let mut v: Vec<String> = fs::read_dir(DB_FOLDER_PATH)?
+            .into_iter()
+            .map(|f| f.unwrap().file_name())
+            .map(|f| match f.into_string() {
+                Ok(s) => s,
+                Err(_) => "".to_string(),
+            })
+            .collect();
+
+        v.retain(|s| s != ".gitkeep" && s != DB_INITIAL_NAME);
+
+        Ok(v)
+    }
+
+    pub fn load_database_save(&self, id: Uuid) -> Result<(), Box<dyn Error>> {
+        self.save_database()?;
+
+        let saves = self.list_database_saves()?;
+
+        let index_to_load = saves.iter().position(|save| {
+            save.contains(&id.to_string()) 
+        });
+
+        match index_to_load {
+            Some(index) => {
+                let save = &saves[index];
+                let database_to_set = format!("{}{}", DB_FOLDER_PATH, save);
+                fs::copy(&database_to_set, &self.path_to_db)?;
+
+                if self.delete_old_saves {
+                    fs::remove_file(database_to_set)?;
+                }
+
+                Ok(())
+            },
+            None => Err(Box::from("No database save found with that id!")),
+        }
+    }
+
     pub fn create_caluser(
+        &self,
         first_name: &str,
         last_name: &str,
         id: Option<Uuid>,
@@ -26,7 +91,7 @@ impl CalConnector {
             None => CalConnector::generate_random_id(),
         };
 
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
             "insert into caluser (id, firstname, lastname, apikey) values (?1, ?2, ?3, ?4);",
@@ -37,12 +102,12 @@ impl CalConnector {
     }
 
     pub fn create_event(
+        &self,
         event_req: CreateEventRequest,
         id: Option<Uuid>,
     ) -> Result<Uuid, Box<dyn Error>> {
-
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
             "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -60,7 +125,7 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn update_event(event_req: UpdateEventRequest) -> Result<Uuid, Box<dyn Error>> {
+    pub fn update_event(&self, event_req: UpdateEventRequest) -> Result<Uuid, Box<dyn Error>> {
         if (event_req.start_time.is_none() && event_req.end_time.is_some())
             || (event_req.start_time.is_some() && event_req.end_time.is_none())
         {
@@ -70,10 +135,10 @@ impl CalConnector {
         }
 
         let id = event_req.id;
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-                "UPDATE event 
+            "UPDATE event 
                 SET 
                     starttime = ?1,
                     endtime = ?2,
@@ -95,9 +160,9 @@ impl CalConnector {
         Ok(id)
     }
 
-    pub fn create_series(series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
+    pub fn create_series(&self, series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
         let new_id = CalConnector::generate_random_id();
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
             "INSERT INTO series (
@@ -129,33 +194,32 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn get_caluser(uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
-        let mut users = CalConnector::get_records::<CalUser>(&format!(
+    pub fn get_caluser(&self, uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
+        let mut users = self.get_records::<CalUser>(&format!(
             "SELECT id, firstname, lastname, apikey FROM caluser where id = '{uuid}'"
         ))?;
 
         Ok(users.pop())
     }
 
-    pub fn get_series(id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
-        let mut seri = CalConnector::get_records::<Series>(&format!(
-            "SELECT * FROM series where id = '{id}'"
-        ))?;
+    pub fn get_series(&self, id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
+        let mut seri =
+            self.get_records::<Series>(&format!("SELECT * FROM series where id = '{id}'"))?;
 
         Ok(seri.pop())
     }
 
-    pub fn get_events() -> Result<Vec<Event>, Box<dyn Error>> {
-        CalConnector::get_records::<Event>(
+    pub fn get_events(&self) -> Result<Vec<Event>, Box<dyn Error>> {
+        self.get_records::<Event>(
             "SELECT id, starttime, endtime, name, description, caluserid, seriesid name FROM event",
         )
     }
 
-    fn get_records<T>(sql: &str) -> Result<Vec<T>, Box<dyn Error>>
+    fn get_records<T>(&self, sql: &str) -> Result<Vec<T>, Box<dyn Error>>
     where
         T: ConstructableFromSql<T>,
     {
-        let conn = Connection::open(DB_NAME)?;
+        let conn = Connection::open(&self.path_to_db)?;
 
         let mut stmt = conn.prepare(sql)?;
 
@@ -170,5 +234,11 @@ impl CalConnector {
 
     fn generate_random_id() -> Uuid {
         Uuid::new_v4()
+    }
+}
+
+impl Default for CalConnector {
+    fn default() -> Self {
+        Self::new(false)
     }
 }
