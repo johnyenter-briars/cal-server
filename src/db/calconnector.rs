@@ -10,17 +10,21 @@ use crate::models::{
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
-use std::{error::Error, ffi::OsString, fs};
+use std::{error::Error, fs};
 use uuid::Uuid;
 
 pub struct CalConnector {
     path_to_db: String,
+    delete_old_saves: bool,
 }
 
 impl CalConnector {
-    pub fn new() -> Self {
+    pub fn new(delete_old_saves: bool) -> Self {
         let path_to_db = format!("{}{}", DB_FOLDER_PATH, DB_INITIAL_NAME);
-        CalConnector { path_to_db }
+        CalConnector {
+            path_to_db,
+            delete_old_saves,
+        }
     }
 
     pub fn save_database(&self) -> Result<Uuid, Box<dyn Error>> {
@@ -48,6 +52,43 @@ impl CalConnector {
         v.retain(|s| *s != ".gitkeep".to_string() && *s != DB_INITIAL_NAME.to_string());
 
         Ok(v)
+    }
+
+    pub fn load_database_save(&self, id: Uuid) -> Result<(), Box<dyn Error>> {
+        self.save_database()?;
+
+        let saves = self.list_database_saves()?;
+
+        let index_to_load = saves.iter().position(|save| {
+            save.contains(&id.to_string()) 
+        });
+
+        match index_to_load {
+            Some(index) => {
+                let save = &saves[index];
+                let database_to_set = format!("{}{}", DB_FOLDER_PATH, save);
+                fs::copy(&database_to_set, &self.path_to_db)?;
+
+                if self.delete_old_saves {
+                    fs::remove_file(database_to_set)?;
+                }
+
+                Ok(())
+            },
+            None => Err(Box::from("No database save found with that id!")),
+        }
+
+        // for save in saves {
+        //     if save.contains(&id.to_string()) {
+        //         let database_to_set = format!("{}{}", DB_FOLDER_PATH, save);
+        //         fs::copy(&database_to_set, &self.path_to_db)?;
+
+        //         if self.delete_old_saves {
+        //             fs::remove_file(database_to_set)?;
+        //         }
+        //     }
+        // }
+        // Ok(())
     }
 
     pub fn create_caluser(
@@ -210,6 +251,6 @@ impl CalConnector {
 
 impl Default for CalConnector {
     fn default() -> Self {
-        Self::new()
+        Self::new(false)
     }
 }

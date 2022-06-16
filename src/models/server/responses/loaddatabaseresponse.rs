@@ -3,19 +3,17 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ListSavesResponse {
-    saves_list: Option<Vec<String>>,
+pub struct LoadDatabaseResponse {
     status_code: u32,
     message: String,
 }
 
-impl ListSavesResponse  {
-    pub fn ok(saves: Vec<String>) -> HttpResponse {
+impl LoadDatabaseResponse   {
+    pub fn ok() -> HttpResponse {
         HttpResponse::Ok().content_type(ContentType::json()).body(
-            ListSavesResponse {
+            LoadDatabaseResponse {
                 status_code: 200,
-                message: "Database saves list found".to_string(),
-                saves_list: Some(saves),
+                message: "Database loaded".to_string(),
             }
             .as_serde_string(),
         )
@@ -25,10 +23,9 @@ impl ListSavesResponse  {
         HttpResponse::InternalServerError()
             .content_type(ContentType::json())
             .body(
-                ListSavesResponse {
+                LoadDatabaseResponse {
                     status_code: 500,
                     message,
-                    saves_list: None
                 }
                 .as_serde_string(),
             )

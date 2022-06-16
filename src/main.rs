@@ -6,7 +6,7 @@ use cal_server::{args::programargs::get_args, db::init::initiaize_db};
 async fn main() -> std::io::Result<()> {
     let args = get_args();
 
-    let connector = CalConnector::new();
+    let connector = CalConnector::new(args.delete_old_saves);
 
     if args.reset_db {
         let init_result = initiaize_db(args.test_data, &args.user_id, &args.api_key, &connector);
