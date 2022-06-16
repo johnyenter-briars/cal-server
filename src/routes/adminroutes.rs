@@ -1,4 +1,4 @@
-use actix_web::{http::header::ContentType, get, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use uuid::Uuid;
 
 use crate::{
