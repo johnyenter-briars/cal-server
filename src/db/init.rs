@@ -7,7 +7,7 @@ use crate::models::server::requests::{
     createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
 };
 
-use super::{calconnector::CalConnector, DB_NAME};
+use super::{calconnector::CalConnector, DB_FOLDER_PATH, DB_INITIAL_NAME};
 use chrono::{Duration, Utc};
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
@@ -16,25 +16,30 @@ pub fn initiaize_db(
     init_test_data: bool,
     user_id: &str,
     api_key: &str,
+    conn: &CalConnector
 ) -> Result<(), Box<dyn std::error::Error>> {
     delete_database()?;
 
-    let conn = Connection::open(DB_NAME)?;
+    let raw_conn = Connection::open(initial_db_path())?;
 
-    conn.execute(&get_sql_file_contents("series")?, [])?;
+    raw_conn.execute(&get_sql_file_contents("series")?, [])?;
 
-    conn.execute(&get_sql_file_contents("caluser")?, [])?;
+    raw_conn.execute(&get_sql_file_contents("caluser")?, [])?;
 
-    conn.execute(&get_sql_file_contents("event")?, [])?;
+    raw_conn.execute(&get_sql_file_contents("event")?, [])?;
 
-    drop(conn);
+    drop(raw_conn);
 
     if init_test_data {
         let user_id = Uuid::parse_str(user_id)?;
-        add_test_data(user_id, api_key)?;
+        add_test_data(user_id, api_key, conn)?;
     }
 
     Ok(())
+}
+
+fn initial_db_path() -> String {
+    format!("{}{}", DB_FOLDER_PATH, DB_INITIAL_NAME)
 }
 
 fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -45,7 +50,7 @@ fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::
 }
 
 fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
-    match fs::remove_file(DB_NAME) {
+    match fs::remove_file(initial_db_path()) {
         Ok(_) => Ok(()),
         Err(error) => match error.kind() {
             ErrorKind::NotFound => Ok(()),
@@ -54,11 +59,11 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error::Error>> {
-    CalConnector::create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
+fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<(), Box<dyn std::error::Error>> {
+    conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     // An event that is 0 seconds long - not part of a series
-    CalConnector::create_event(
+    conn.create_event(
         CreateEventRequest {
             name: "event1".to_string(),
             description: Some("some description here".to_string()),
@@ -70,22 +75,8 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
         None,
     )?;
 
-    // for h in 0..2 {
-    //     CalConnector::create_event(
-    //         CreateEventRequest {
-    //             name: "first test event".to_string(),
-    //             description: Some("some description here".to_string()),
-    //             start_time: Some(Utc::now() + Duration::hours(h)),
-    //             end_time: Some(Utc::now() + Duration::hours(h) + Duration::hours(1)),
-    //             cal_user_id: user_id,
-    //             series_id: None,
-    //         },
-    //         None,
-    //     )?;
-    // }
-
     //create the series
-    let series_id = CalConnector::create_series(CreateSeriesRequest {
+    let series_id = conn.create_series(CreateSeriesRequest {
         repeat_every_week: 1,
         repeat_on_mon: true,
         repeat_on_tues: false,
@@ -98,7 +89,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
     })?;
 
     //create two events for it
-    CalConnector::create_event(
+    conn.create_event(
         CreateEventRequest {
             name: "event2".to_string(),
             description: Some("some description here".to_string()),
@@ -110,7 +101,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
         None,
     )?;
 
-    CalConnector::create_event(
+    conn.create_event(
         CreateEventRequest {
             name: "event3".to_string(),
             description: Some("some description here".to_string()),
@@ -123,7 +114,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
     )?;
 
     // An event for yesterday
-    CalConnector::create_event(
+    conn.create_event(
         CreateEventRequest {
             name: "yesterday".to_string(),
             description: Some("some description here".to_string()),
@@ -136,7 +127,7 @@ fn add_test_data(user_id: Uuid, api_key: &str) -> Result<(), Box<dyn std::error:
     )?;
 
     // An event for romorrow
-    CalConnector::create_event(
+    conn.create_event(
         CreateEventRequest {
             name: "tomorrows event".to_string(),
             description: Some("some description here".to_string()),
