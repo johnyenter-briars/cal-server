@@ -1,4 +1,4 @@
-use super::DB_FOLDER_PATH;
+use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::models::{
     cal::{caluser::CalUser, event::Event, series::Series},
     server::requests::{
@@ -10,7 +10,7 @@ use crate::models::{
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
-use std::{error::Error, fs};
+use std::{error::Error, ffi::OsString, fs};
 use uuid::Uuid;
 
 pub struct CalConnector {
@@ -19,7 +19,7 @@ pub struct CalConnector {
 
 impl CalConnector {
     pub fn new() -> Self {
-        let path_to_db = format!("{}/CURRENT.db", DB_FOLDER_PATH);
+        let path_to_db = format!("{}{}", DB_FOLDER_PATH, DB_INITIAL_NAME);
         CalConnector { path_to_db }
     }
 
@@ -28,20 +28,26 @@ impl CalConnector {
 
         fs::copy(
             &self.path_to_db,
-            format!("./db/database/{}-{}.db", id, Utc::now()),
+            format!("{}{}={}.db", DB_FOLDER_PATH, id, Utc::now()),
         )?;
 
         Ok(id)
     }
 
-    pub fn list_databases(&self) -> Result<Vec<String>, Box<dyn Error>> {
-        let _idk: Vec<String> = fs::read_dir("./change_this_path")?.into_iter().map(|f| {
-            let _d = f.unwrap().path().display();
+    ///TODO: this function could probably be a little more idiomatic
+    pub fn list_database_saves(&self) -> Result<Vec<String>, Box<dyn Error>> {
+        let mut v: Vec<String> = fs::read_dir(DB_FOLDER_PATH)?
+            .into_iter()
+            .map(|f| f.unwrap().file_name())
+            .map(|f| match f.into_string() {
+                Ok(s) => s,
+                Err(_) => "".to_string(),
+            })
+            .collect();
 
-            "idk".to_string()
-        }).collect();
+        v.retain(|s| *s != ".gitkeep".to_string() && *s != DB_INITIAL_NAME.to_string());
 
-        Ok(vec![])
+        Ok(v)
     }
 
     pub fn create_caluser(
