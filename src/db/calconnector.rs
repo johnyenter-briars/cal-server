@@ -175,8 +175,11 @@ impl CalConnector {
                 repeateonfri,
                 repeateonsat,
                 repeateonsun,
-                endson
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                startson,
+                endson,
+                name,
+                description
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
             params![
                 new_id.to_string(),
                 series_req.repeat_every_week,
@@ -188,6 +191,9 @@ impl CalConnector {
                 series_req.repeat_on_sat,
                 series_req.repeat_on_sun,
                 series_req.ends_on.map(|t| t.timestamp()),
+                series_req.ends_on.map(|t| t.timestamp()),
+                series_req.name,
+                series_req.description
             ],
         )?;
 
