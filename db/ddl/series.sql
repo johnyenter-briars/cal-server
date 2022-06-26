@@ -8,5 +8,8 @@ CREATE TABLE IF NOT EXISTS series (
     repeateonfri BOOLEAN NOT NULL CHECK (repeateonfri IN (0, 1)),
     repeateonsat BOOLEAN NOT NULL CHECK (repeateonsat IN (0, 1)),
     repeateonsun BOOLEAN NOT NULL CHECK (repeateonsun IN (0, 1)),
-    endson INTEGER
+    startson INTEGER,
+    endson INTEGER,
+    name TEXT NOT NULL,
+    description TEXT
 )

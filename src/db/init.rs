@@ -77,6 +77,8 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<()
 
     //create the series
     let series_id = conn.create_series(CreateSeriesRequest {
+        name: "series test".to_string(),
+        description: "".to_string(),
         repeat_every_week: 1,
         repeat_on_mon: true,
         repeat_on_tues: false,
@@ -85,6 +87,7 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<()
         repeat_on_fri: false,
         repeat_on_sat: false,
         repeat_on_sun: false,
+        starts_on: Some(Utc::now()),
         ends_on: Some(Utc::now()),
     })?;
 
