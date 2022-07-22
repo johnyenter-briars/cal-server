@@ -2,14 +2,23 @@ use crate::{
     models::server::{
         requests::createseriesrequest::CreateSeriesRequest,
         responses::{createseriesresponse::CreateSeriesResponse, seriesresponse::SeriesResponse},
-    }, server::httpserver::AppState,
+    },
+    server::httpserver::AppState,
 };
 use actix_web::{get, post, web, HttpResponse};
 use uuid::Uuid;
 
 #[post("/api/series")]
-pub async fn create_series(create_series_req: web::Json<CreateSeriesRequest>, state: web::Data<AppState>) -> HttpResponse {
-    match state.cal_connector.lock().unwrap().create_series(create_series_req.0) {
+pub async fn create_series(
+    create_series_req: web::Json<CreateSeriesRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    match state
+        .cal_connector
+        .lock()
+        .unwrap()
+        .create_series(create_series_req.0)
+    {
         Ok(series_id) => CreateSeriesResponse::created(series_id),
         Err(e) => CreateSeriesResponse::error(e.to_string()),
     }
