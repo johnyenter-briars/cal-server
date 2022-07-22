@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS series (
     id TEXT PRIMARY KEY,
+    name TEXT,
+    description TEXT,
     repeateveryweek INTEGER NOT NULL,
     repeateonmon BOOLEAN NOT NULL CHECK (repeateonmon IN (0, 1)),
     repeateontues BOOLEAN NOT NULL CHECK (repeateontues IN (0, 1)),
@@ -10,6 +12,6 @@ CREATE TABLE IF NOT EXISTS series (
     repeateonsun BOOLEAN NOT NULL CHECK (repeateonsun IN (0, 1)),
     startson INTEGER,
     endson INTEGER,
-    name TEXT NOT NULL,
-    description TEXT
+    eventstarttime INTEGER,
+    eventendtime INTEGER
 )
