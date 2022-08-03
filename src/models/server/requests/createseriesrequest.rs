@@ -1,6 +1,7 @@
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use uuid::Uuid;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,4 +23,5 @@ pub struct CreateSeriesRequest {
     pub event_start_time: Duration,
     #[serde_as(as = "serde_with::DurationSeconds<i64>")]
     pub event_end_time: Duration,
+    pub caluser_id: Uuid,
 }

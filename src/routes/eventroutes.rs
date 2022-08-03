@@ -36,7 +36,7 @@ pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>, state
             end_time: update_event_req.end_time,
             name: update_event_req.name.clone(),
             description: update_event_req.description.clone(),
-            cal_user_id: update_event_req.cal_user_id,
+            caluser_id: update_event_req.caluser_id,
             series_id: update_event_req.series_id,
         };
 

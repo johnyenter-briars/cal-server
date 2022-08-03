@@ -115,7 +115,7 @@ impl CalConnector {
                 event_req.end_time.map(|t| t.timestamp()),
                 event_req.name,
                 event_req.description,
-                event_req.cal_user_id.to_string(),
+                event_req.caluser_id.to_string(),
                 event_req.series_id.map(|t| t.to_string()),
             ],
         )?;
@@ -178,8 +178,9 @@ impl CalConnector {
                 startson,
                 endson,
                 eventstarttime,
-                eventendtime
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
+                eventendtime,
+                caluserid 
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)",
             params![
                 new_id.to_string(),
                 series_req.name,
@@ -196,6 +197,7 @@ impl CalConnector {
                 series_req.ends_on.timestamp(),
                 series_req.event_start_time.num_seconds(),
                 series_req.event_end_time.num_seconds(),
+                series_req.caluser_id.to_string(),
             ],
         )?;
 

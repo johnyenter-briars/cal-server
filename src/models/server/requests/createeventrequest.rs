@@ -11,7 +11,7 @@ pub struct CreateEventRequest {
     pub end_time: Option<DateTime<Utc>>,
     pub name: String,
     pub description: Option<String>,
-    pub cal_user_id: Uuid,
+    pub caluser_id: Uuid,
     pub series_id: Option<Uuid>,
 }
 
