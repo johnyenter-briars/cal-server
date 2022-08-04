@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub struct CreateCalUserResponse {
     status_code: u32,
     message: String,
-    caluser_id: Option<Uuid>,
+    cal_user_id: Option<Uuid>,
 }
 
 impl CreateCalUserResponse {
@@ -18,7 +18,7 @@ impl CreateCalUserResponse {
                 CreateCalUserResponse {
                     status_code: 201,
                     message: "Caluser created".to_string(),
-                    caluser_id: Some(id),
+                    cal_user_id: Some(id),
                 }
                 .as_serde_string(),
             )
@@ -31,7 +31,7 @@ impl CreateCalUserResponse {
                 CreateCalUserResponse {
                     status_code: 500,
                     message,
-                    caluser_id: None,
+                    cal_user_id: None,
                 }
                 .as_serde_string(),
             )

@@ -23,5 +23,5 @@ pub struct CreateSeriesRequest {
     pub event_start_time: Duration,
     #[serde_as(as = "serde_with::DurationSeconds<i64>")]
     pub event_end_time: Duration,
-    pub caluser_id: Uuid,
+    pub cal_user_id: Uuid,
 }
