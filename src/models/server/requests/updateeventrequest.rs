@@ -35,7 +35,7 @@ impl Validatable for UpdateEventRequest {
         if self.start_time > self.end_time {
             return (false, "End time may not be after start time".to_string());
         }
-        
+
         (true, "".to_string())
     }
 }

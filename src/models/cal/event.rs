@@ -17,9 +17,11 @@ pub struct Event {
     pub series_id: Option<Uuid>,
 }
 
-
 impl ConstructableFromSql<Event> for Event {
-    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>> where Self: std::marker::Sized {
+    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>>
+    where
+        Self: std::marker::Sized,
+    {
         Ok(Event {
             id: Uuid::parse_str(&row.get::<usize, String>(0)?)?,
             start_time: match row.get(1) {
@@ -38,8 +40,8 @@ impl ConstructableFromSql<Event> for Event {
             },
             name: row.get(3)?,
             description: row.get(4)?,
-            cal_user_id: Uuid::parse_str(&row.get::<usize, String>(5)?)? ,
-            series_id:  match row.get::<usize, String>(6) {
+            cal_user_id: Uuid::parse_str(&row.get::<usize, String>(5)?)?,
+            series_id: match row.get::<usize, String>(6) {
                 Ok(string) => Some(Uuid::parse_str(&string)?),
                 Err(_) => None,
             },

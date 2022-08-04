@@ -1,4 +1,4 @@
-pub mod eventroutes;
-pub mod caluserroutes;
-pub mod seriesroutes;
 pub mod adminroutes;
+pub mod caluserroutes;
+pub mod eventroutes;
+pub mod seriesroutes;

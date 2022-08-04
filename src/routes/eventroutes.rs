@@ -11,17 +11,24 @@ use crate::{
             },
         },
         traits::validate::Validatable,
-    }, server::httpserver::AppState,
+    },
+    server::httpserver::AppState,
 };
 use actix_web::{get, post, put, web, HttpResponse};
 
 #[post("/api/event")]
-pub async fn create_event(create_event_req: web::Json<CreateEventRequest>, state: web::Data<AppState>) -> HttpResponse {
+pub async fn create_event(
+    create_event_req: web::Json<CreateEventRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
     create_event_base(create_event_req.0, &state.cal_connector.lock().unwrap())
 }
 
 #[put("/api/event")]
-pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>, state: web::Data<AppState>) -> HttpResponse {
+pub async fn update_event(
+    update_event_req: web::Json<UpdateEventRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
     let cal_connector = state.cal_connector.lock().unwrap();
     let events = match cal_connector.get_events() {
         Ok(e) => e,
@@ -63,7 +70,10 @@ pub async fn get_events(state: web::Data<AppState>) -> HttpResponse {
     }
 }
 
-fn create_event_base(create_event_req: CreateEventRequest, cal_connector: &CalConnector) -> HttpResponse {
+fn create_event_base(
+    create_event_req: CreateEventRequest,
+    cal_connector: &CalConnector,
+) -> HttpResponse {
     let (pass, message) = validate_request(&create_event_req);
 
     if !pass {
