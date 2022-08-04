@@ -31,9 +31,9 @@ The binary currently supports several command line arguments.
 | -h | --help |                 Print help information
 | -i | --ip <IP> |              Ip Address the application should bind to [default: 127.0.0.1]
 | -p | --port <PORT> |         Port for the application should bind to [default: 8080]
-| -r | --reset-db |             Whether or not to delete and refresh the database before starup
+| -r | --reset-db |             Whether to delete and refresh the database before starup
 | -t | --test-data |           Populate the database with test data
-| -d | --delete-old-saves |           Database should delete the old save file when it's loaded into the database
+| -d | --delete-old-saves | Dont save the current database when loading a previous save
 | -u | --user-id <USER_ID> |    UserId for root user
 | -V | --version |              Print version information
 

@@ -59,9 +59,7 @@ impl CalConnector {
 
         let saves = self.list_database_saves()?;
 
-        let index_to_load = saves.iter().position(|save| {
-            save.contains(&id.to_string()) 
-        });
+        let index_to_load = saves.iter().position(|save| save.contains(&id.to_string()));
 
         match index_to_load {
             Some(index) => {
@@ -74,7 +72,7 @@ impl CalConnector {
                 }
 
                 Ok(())
-            },
+            }
             None => Err(Box::from("No database save found with that id!")),
         }
     }
@@ -167,6 +165,8 @@ impl CalConnector {
         conn.execute(
             "INSERT INTO series (
                 id,
+                name,
+                description,
                 repeateveryweek,
                 repeateonmon,
                 repeateontues,
@@ -175,10 +175,16 @@ impl CalConnector {
                 repeateonfri,
                 repeateonsat,
                 repeateonsun,
-                endson
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                startson,
+                endson,
+                eventstarttime,
+                eventendtime,
+                caluserid 
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)",
             params![
                 new_id.to_string(),
+                series_req.name,
+                series_req.description,
                 series_req.repeat_every_week,
                 series_req.repeat_on_mon,
                 series_req.repeat_on_tues,
@@ -187,7 +193,11 @@ impl CalConnector {
                 series_req.repeat_on_fri,
                 series_req.repeat_on_sat,
                 series_req.repeat_on_sun,
-                series_req.ends_on.map(|t| t.timestamp()),
+                series_req.ends_on.timestamp(),
+                series_req.ends_on.timestamp(),
+                series_req.event_start_time.num_seconds(),
+                series_req.event_end_time.num_seconds(),
+                series_req.cal_user_id.to_string(),
             ],
         )?;
 

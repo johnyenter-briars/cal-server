@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS event (
     endtime INTEGER,
     name TEXT NOT NULL,
     description TEXT,
-    caluserid INTEGER NOT NULL,
-    seriesid INTEGER,
+    caluserid TEXT NOT NULL,
+    seriesid TEXT,
 
     FOREIGN KEY (caluserid) REFERENCES caluser(id),
     FOREIGN KEY (seriesid) REFERENCES series(id)

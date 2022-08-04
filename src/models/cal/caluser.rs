@@ -2,7 +2,6 @@ use rusqlite::Row;
 use serde::Serialize;
 use uuid::Uuid;
 use crate::models::traits::construct::ConstructableFromSql;
-// use super::construct::ConstructableFromSql;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CalUser {

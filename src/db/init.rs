@@ -16,7 +16,7 @@ pub fn initiaize_db(
     init_test_data: bool,
     user_id: &str,
     api_key: &str,
-    conn: &CalConnector
+    conn: &CalConnector,
 ) -> Result<(), Box<dyn std::error::Error>> {
     delete_database()?;
 
@@ -59,7 +59,11 @@ fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<(), Box<dyn std::error::Error>> {
+fn add_test_data(
+    user_id: Uuid,
+    api_key: &str,
+    conn: &CalConnector,
+) -> Result<(), Box<dyn std::error::Error>> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     // An event that is 0 seconds long - not part of a series
@@ -77,6 +81,8 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<()
 
     //create the series
     let series_id = conn.create_series(CreateSeriesRequest {
+        name: "series test".to_string(),
+        description: "".to_string(),
         repeat_every_week: 1,
         repeat_on_mon: true,
         repeat_on_tues: false,
@@ -85,7 +91,11 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> Result<()
         repeat_on_fri: false,
         repeat_on_sat: false,
         repeat_on_sun: false,
-        ends_on: Some(Utc::now()),
+        starts_on: Utc::now(),
+        ends_on: Utc::now(),
+        event_start_time: chrono::Duration::seconds(1000),
+        event_end_time: chrono::Duration::seconds(1000),
+        cal_user_id: user_id,
     })?;
 
     //create two events for it
