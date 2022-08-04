@@ -13,7 +13,7 @@ pub struct Event {
     pub end_time: Option<DateTime<Utc>>,
     pub name: String,
     pub description: Option<String>,
-    pub caluser_id: Uuid,
+    pub cal_user_id: Uuid,
     pub series_id: Option<Uuid>,
 }
 
@@ -38,7 +38,7 @@ impl ConstructableFromSql<Event> for Event {
             },
             name: row.get(3)?,
             description: row.get(4)?,
-            caluser_id: Uuid::parse_str(&row.get::<usize, String>(5)?)? ,
+            cal_user_id: Uuid::parse_str(&row.get::<usize, String>(5)?)? ,
             series_id:  match row.get::<usize, String>(6) {
                 Ok(string) => Some(Uuid::parse_str(&string)?),
                 Err(_) => None,
