@@ -4,7 +4,8 @@ use crate::{
         responses::{
             caluserresponse::CalUserResponse, createcaluserresponse::CreateCalUserResponse,
         },
-    }, server::httpserver::AppState,
+    },
+    server::httpserver::AppState,
 };
 use actix_web::{get, post, web, HttpResponse};
 use uuid::Uuid;

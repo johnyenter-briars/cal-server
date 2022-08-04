@@ -29,7 +29,7 @@ impl SaveDatabaseResult {
                 SaveDatabaseResult {
                     status_code: 500,
                     message,
-                    id: None
+                    id: None,
                 }
                 .as_serde_string(),
             )
