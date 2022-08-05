@@ -1,11 +1,14 @@
 use crate::{
     models::server::{
         requests::createseriesrequest::CreateSeriesRequest,
-        responses::{createseriesresponse::CreateSeriesResponse, seriesresponse::SeriesResponse},
+        responses::{
+            createseriesresponse::CreateSeriesResponse,
+            deletedentityresponse::DeletedEntityResponse, seriesresponse::SeriesResponse,
+        },
     },
     server::httpserver::AppState,
 };
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{delete, get, post, web, HttpResponse};
 use uuid::Uuid;
 
 #[post("/api/series")]
@@ -37,5 +40,18 @@ pub async fn get_series(series_id: web::Path<String>, state: web::Data<AppState>
             None => SeriesResponse::not_found(),
         },
         Err(e) => SeriesResponse::error(e.to_string()),
+    }
+}
+
+#[delete("/api/series/{uuid}")]
+pub async fn delete_series(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
+    let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
+
+    match state.cal_connector.lock().unwrap().delete_series(id) {
+        Ok(option) => match option {
+            Some(id) => DeletedEntityResponse::ok(id),
+            None => DeletedEntityResponse::bad_request("No entity found with that Id".to_string()),
+        },
+        Err(e) => DeletedEntityResponse::error(e.to_string()),
     }
 }

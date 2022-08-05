@@ -219,6 +219,42 @@ impl CalConnector {
         Ok(seri.pop())
     }
 
+    pub fn delete_series(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
+        let sub_events = self
+            .get_events()?
+            .into_iter()
+            .filter(|e| match e.series_id {
+                Some(e_id) => e_id == id,
+                None => false,
+            })
+            .collect::<Vec<Event>>();
+
+        for sub_event in sub_events {
+            //I really hope nothing bad goes wrong here : /
+            let _ = self.delete_event(sub_event.id);
+        }
+
+        self.delete_entity(id, "series")
+    }
+
+    pub fn delete_event(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
+        self.delete_entity(id, "event")
+    }
+
+    pub fn delete_entity(&self, id: Uuid, entity: &str) -> Result<Option<Uuid>, Box<dyn Error>> {
+        let conn = Connection::open(&self.path_to_db)?;
+
+        let mut stmt = conn.prepare(&format!("DELETE FROM {entity} WHERE id = '{id}'"))?;
+
+        let number_rows_updated = stmt.execute(params![])?;
+
+        if number_rows_updated == 0 {
+            return Ok(None);
+        }
+
+        Ok(Some(id))
+    }
+
     pub fn get_events(&self) -> Result<Vec<Event>, Box<dyn Error>> {
         self.get_records::<Event>(
             "SELECT id, starttime, endtime, name, description, caluserid, seriesid name FROM event",
