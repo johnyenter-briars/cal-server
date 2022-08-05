@@ -6,22 +6,31 @@ use crate::{
                 createeventrequest::CreateEventRequest, updateeventrequest::UpdateEventRequest,
             },
             responses::{
-                createeventresponse::CreateEventResponse, eventsresponse::EventsResponse,
+                createeventresponse::CreateEventResponse,
+                deletedentityresponse::DeletedEntityResponse, eventsresponse::EventsResponse,
                 updateeventresponse::UpdateEventResponse,
             },
         },
         traits::validate::Validatable,
-    }, server::httpserver::AppState,
+    },
+    server::httpserver::AppState,
 };
-use actix_web::{get, post, put, web, HttpResponse};
+use actix_web::{delete, get, post, put, web, HttpResponse};
+use uuid::Uuid;
 
 #[post("/api/event")]
-pub async fn create_event(create_event_req: web::Json<CreateEventRequest>, state: web::Data<AppState>) -> HttpResponse {
+pub async fn create_event(
+    create_event_req: web::Json<CreateEventRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
     create_event_base(create_event_req.0, &state.cal_connector.lock().unwrap())
 }
 
 #[put("/api/event")]
-pub async fn update_event(update_event_req: web::Json<UpdateEventRequest>, state: web::Data<AppState>) -> HttpResponse {
+pub async fn update_event(
+    update_event_req: web::Json<UpdateEventRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
     let cal_connector = state.cal_connector.lock().unwrap();
     let events = match cal_connector.get_events() {
         Ok(e) => e,
@@ -63,7 +72,23 @@ pub async fn get_events(state: web::Data<AppState>) -> HttpResponse {
     }
 }
 
-fn create_event_base(create_event_req: CreateEventRequest, cal_connector: &CalConnector) -> HttpResponse {
+#[delete("/api/event/{uuid}")]
+pub async fn delete_event(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
+    let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
+
+    match state.cal_connector.lock().unwrap().delete_event(id) {
+        Ok(option) => match option {
+            Some(id) => DeletedEntityResponse::ok(id),
+            None => DeletedEntityResponse::bad_request("No entity found with that Id".to_string()),
+        },
+        Err(e) => DeletedEntityResponse::error(e.to_string()),
+    }
+}
+
+fn create_event_base(
+    create_event_req: CreateEventRequest,
+    cal_connector: &CalConnector,
+) -> HttpResponse {
     let (pass, message) = validate_request(&create_event_req);
 
     if !pass {

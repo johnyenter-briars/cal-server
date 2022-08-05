@@ -9,7 +9,7 @@ pub struct ListSavesResponse {
     message: String,
 }
 
-impl ListSavesResponse  {
+impl ListSavesResponse {
     pub fn ok(saves: Vec<String>) -> HttpResponse {
         HttpResponse::Ok().content_type(ContentType::json()).body(
             ListSavesResponse {
@@ -28,7 +28,7 @@ impl ListSavesResponse  {
                 ListSavesResponse {
                     status_code: 500,
                     message,
-                    saves_list: None
+                    saves_list: None,
                 }
                 .as_serde_string(),
             )

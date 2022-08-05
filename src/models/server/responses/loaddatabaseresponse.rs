@@ -8,7 +8,7 @@ pub struct LoadDatabaseResponse {
     message: String,
 }
 
-impl LoadDatabaseResponse   {
+impl LoadDatabaseResponse {
     pub fn ok() -> HttpResponse {
         HttpResponse::Ok().content_type(ContentType::json()).body(
             LoadDatabaseResponse {

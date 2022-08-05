@@ -1,9 +1,9 @@
 use std::time::{Duration, Instant};
 
+use crate::server;
 use crate::server::clientmessage::ClientMessage;
 use crate::server::disconnect::Disconnect;
 use crate::server::message::Message;
-use crate::server;
 use actix::prelude::*;
 use actix::{Actor, Addr, AsyncContext, WrapFuture};
 use actix_web_actors::ws;
@@ -62,13 +62,11 @@ impl NotificationSession {
             if Instant::now().duration_since(act.heart_beat) > CLIENT_TIMEOUT {
                 println!("Client heartbeat failed - disconnecting");
 
-                act.notification_server.do_send(Disconnect {
-                    id: act.id,
-                });
+                act.notification_server.do_send(Disconnect { id: act.id });
 
                 ctx.stop();
 
-                return
+                return;
             }
 
             ctx.ping(b"");
@@ -82,7 +80,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for NotificationSessi
             Err(_) => {
                 ctx.stop();
                 return;
-            },
+            }
             Ok(msg) => msg,
         };
 
@@ -91,28 +89,27 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for NotificationSessi
         match msg {
             ws::Message::Text(text) => {
                 let m = text.trim();
-                
+
                 self.notification_server.do_send(ClientMessage {
                     id: self.id,
                     msg: m.to_string(),
                 });
-
-            },
+            }
             ws::Message::Binary(_) => println!("Unexpected binary!"),
             ws::Message::Continuation(_) => {
                 ctx.stop();
-            },
-            ws::Message::Ping(msg) =>  {
+            }
+            ws::Message::Ping(msg) => {
                 self.heart_beat = Instant::now();
                 ctx.pong(&msg);
-            },
+            }
             ws::Message::Pong(_) => {
                 self.heart_beat = Instant::now();
-            },
+            }
             ws::Message::Close(reason) => {
                 ctx.close(reason);
                 ctx.stop();
-            },
+            }
             ws::Message::Nop => (),
         }
     }

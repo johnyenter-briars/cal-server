@@ -1,22 +1,22 @@
-use crate::models::cal::caluser::CalUser;
 use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CalUserResponse {
-    user: Option<CalUser>,
+pub struct DeletedEntityResponse {
+    id: Option<Uuid>,
     status_code: u32,
     message: String,
 }
 
-impl CalUserResponse {
-    pub fn ok(user: CalUser) -> HttpResponse {
+impl DeletedEntityResponse {
+    pub fn ok(id: Uuid) -> HttpResponse {
         HttpResponse::Ok().content_type(ContentType::json()).body(
-            CalUserResponse {
+            DeletedEntityResponse {
                 status_code: 200,
-                message: "CalUser found".to_string(),
-                user: Some(user),
+                message: "Entity deleted".to_string(),
+                id: Some(id),
             }
             .as_serde_string(),
         )
@@ -26,10 +26,10 @@ impl CalUserResponse {
         HttpResponse::NotFound()
             .content_type(ContentType::json())
             .body(
-                CalUserResponse {
+                DeletedEntityResponse {
                     status_code: 400,
-                    message: "No user found with that id".to_string(),
-                    user: None,
+                    message: "No entity found with that id".to_string(),
+                    id: None,
                 }
                 .as_serde_string(),
             )
@@ -39,10 +39,10 @@ impl CalUserResponse {
         HttpResponse::BadRequest()
             .content_type(ContentType::json())
             .body(
-                CalUserResponse {
+                DeletedEntityResponse {
                     status_code: 400,
                     message,
-                    user: None,
+                    id: None,
                 }
                 .as_serde_string(),
             )
@@ -52,10 +52,10 @@ impl CalUserResponse {
         HttpResponse::InternalServerError()
             .content_type(ContentType::json())
             .body(
-                CalUserResponse {
+                DeletedEntityResponse {
                     status_code: 400,
                     message,
-                    user: None,
+                    id: None,
                 }
                 .as_serde_string(),
             )
