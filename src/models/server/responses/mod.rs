@@ -2,6 +2,7 @@ pub mod caluserresponse;
 pub mod createcaluserresponse;
 pub mod createeventresponse;
 pub mod createseriesresponse;
+pub mod deletedentityresponse;
 pub mod eventsresponse;
 pub mod listsavesresponse;
 pub mod loaddatabaseresponse;

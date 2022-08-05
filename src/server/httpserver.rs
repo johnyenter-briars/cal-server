@@ -5,8 +5,8 @@ use crate::{
     routes::{
         adminroutes::{list_database_saves, load_database_version, save_database},
         caluserroutes::{create_caluser, get_caluser},
-        eventroutes::{create_event, get_events, update_event},
-        seriesroutes::{create_series, get_series},
+        eventroutes::{create_event, delete_event, get_events, update_event},
+        seriesroutes::{create_series, delete_series, get_series},
     },
 };
 use actix_web::web;
@@ -42,6 +42,8 @@ pub async fn build_and_run_server(
             .service(save_database)
             .service(list_database_saves)
             .service(load_database_version)
+            .service(delete_event)
+            .service(delete_series)
             .wrap(Logger::new("%a %{User-Agent}i %r %s %U %{Content-Type}i"))
             .app_data(app_state.clone())
             .wrap(ApiKey::new(key_value.clone()))
