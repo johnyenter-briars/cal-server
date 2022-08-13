@@ -4,7 +4,8 @@ use std::{
 };
 
 use crate::models::server::requests::{
-    createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
+    createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
+    createseriesrequest::CreateSeriesRequest,
 };
 
 use super::{calconnector::CalConnector, DB_FOLDER_PATH, DB_INITIAL_NAME};
@@ -27,6 +28,8 @@ pub fn initiaize_db(
     raw_conn.execute(&get_sql_file_contents("caluser")?, [])?;
 
     raw_conn.execute(&get_sql_file_contents("event")?, [])?;
+
+    raw_conn.execute(&get_sql_file_contents("calendar")?, [])?;
 
     drop(raw_conn);
 
@@ -66,6 +69,15 @@ fn add_test_data(
 ) -> Result<(), Box<dyn std::error::Error>> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
+    let calendar_id = conn.create_calendar(
+        CreateCalendarRequest {
+            name: "Birthdays".to_string(),
+            description: None,
+            cal_user_id: user_id,
+        },
+        Some(Uuid::parse_str("aebb3df3-d1fa-4f21-af2f-a98d0774f3ac")?),
+    )?;
+
     // An event that is 0 seconds long - not part of a series
     conn.create_event(
         CreateEventRequest {
@@ -75,6 +87,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
+            calendar_id,
         },
         None,
     )?;
@@ -96,6 +109,7 @@ fn add_test_data(
         event_start_time: chrono::Duration::seconds(1000),
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
+        calendar_id,
     })?;
 
     //create two events for it
@@ -107,6 +121,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
+            calendar_id,
         },
         None,
     )?;
@@ -119,6 +134,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
+            calendar_id,
         },
         None,
     )?;
@@ -132,6 +148,7 @@ fn add_test_data(
             end_time: Some(Utc::now() - Duration::days(1) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
+            calendar_id,
         },
         None,
     )?;
@@ -145,6 +162,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::days(1) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
+            calendar_id,
         },
         None,
     )?;

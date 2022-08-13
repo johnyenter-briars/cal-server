@@ -28,6 +28,7 @@ pub struct Series {
     #[serde_as(as = "serde_with::DurationSeconds<i64>")]
     pub event_end_time: Duration,
     pub cal_user_id: Uuid,
+    pub calendar_id: Uuid,
 }
 
 impl ConstructableFromSql<Series> for Series {
@@ -62,6 +63,7 @@ impl ConstructableFromSql<Series> for Series {
             event_start_time: Duration::seconds(row.get::<usize, i64>(13)?),
             event_end_time: Duration::seconds(row.get::<usize, i64>(14)?),
             cal_user_id: Uuid::parse_str(&row.get::<usize, String>(15)?)?,
+            calendar_id: Uuid::parse_str(&row.get::<usize, String>(16)?)?,
         })
     }
 }
