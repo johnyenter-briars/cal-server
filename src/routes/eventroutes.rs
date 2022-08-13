@@ -47,6 +47,7 @@ pub async fn update_event(
             description: update_event_req.description.clone(),
             cal_user_id: update_event_req.cal_user_id,
             series_id: update_event_req.series_id,
+            calendar_id: update_event_req.calendar_id
         };
 
         return create_event_base(create_event_req, &cal_connector);
