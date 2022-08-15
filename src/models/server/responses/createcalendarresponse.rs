@@ -15,7 +15,7 @@ impl CreateCalendarResponse {
         HttpResponse::Created()
             .content_type(ContentType::json())
             .body(
-                CreateCalendarResponse  {
+                CreateCalendarResponse {
                     status_code: 201,
                     message: "Calendar created".to_string(),
                     calendar_id: Some(id),

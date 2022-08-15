@@ -1,13 +1,18 @@
-use actix_web::{get, post, web, HttpResponse, delete};
+use actix_web::{delete, get, post, web, HttpResponse};
 use uuid::Uuid;
 
 use crate::{
-    models::{server::{
-        requests::createcalendarrequest::CreateCalendarRequest,
-        responses::{
-            calendarsresponse::CalendarsResponse, createcalendarresponse::CreateCalendarResponse, deletedentityresponse::DeletedEntityResponse,
+    models::{
+        cal::calendar::Calendar,
+        server::{
+            requests::createcalendarrequest::CreateCalendarRequest,
+            responses::{
+                calendarsresponse::CalendarsResponse,
+                createcalendarresponse::CreateCalendarResponse,
+                deletedentityresponse::DeletedEntityResponse,
+            },
         },
-    }, cal::calendar::Calendar},
+    },
     server::httpserver::AppState,
 };
 
@@ -59,6 +64,6 @@ pub async fn get_calendars_for_user(
 
     match cals_for_user.len() {
         0 => CalendarsResponse::not_found(),
-        _ => CalendarsResponse::ok(cals_for_user)
+        _ => CalendarsResponse::ok(cals_for_user),
     }
 }

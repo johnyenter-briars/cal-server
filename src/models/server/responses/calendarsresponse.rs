@@ -23,14 +23,16 @@ impl CalendarsResponse {
     }
 
     pub fn not_found() -> HttpResponse {
-        HttpResponse::NotFound().content_type(ContentType::json()).body(
-            CalendarsResponse {
-                status_code: 400,
-                message: "No calendars found for user".to_string(),
-                events: vec![],
-            }
-            .as_serde_string(),
-        )
+        HttpResponse::NotFound()
+            .content_type(ContentType::json())
+            .body(
+                CalendarsResponse {
+                    status_code: 400,
+                    message: "No calendars found for user".to_string(),
+                    events: vec![],
+                }
+                .as_serde_string(),
+            )
     }
 
     pub fn error(message: String) -> HttpResponse {
