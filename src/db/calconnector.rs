@@ -243,11 +243,11 @@ impl CalConnector {
     }
 
     pub fn get_all_series(&self) -> Result<Vec<Series>, Box<dyn Error>> {
-        self.get_records::<Series>(&format!("SELECT * FROM series"))
+        self.get_records::<Series>("SELECT * FROM series")
     }
 
     pub fn get_calendars(&self) -> Result<Vec<Calendar>, Box<dyn Error>> {
-        self.get_records::<Calendar>(&format!("SELECT * FROM calendar"))
+        self.get_records::<Calendar>("SELECT * FROM calendar")
     }
 
     pub fn delete_calendar(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
