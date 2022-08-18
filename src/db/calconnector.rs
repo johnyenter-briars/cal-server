@@ -133,12 +133,13 @@ impl CalConnector {
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-            "INSERT INTO calendar (id, name, description, caluserid) VALUES (?1, ?2, ?3, ?4)",
+            "INSERT INTO calendar (id, name, description, caluserid, color) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![
                 new_id.to_string(),
                 calendar_req.name,
                 calendar_req.description,
                 calendar_req.cal_user_id.to_string(),
+                calendar_req.color.to_string(),
             ],
         )?;
 

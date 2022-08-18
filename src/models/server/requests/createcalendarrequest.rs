@@ -10,4 +10,5 @@ pub struct CreateCalendarRequest {
     pub name: String,
     pub description: Option<String>,
     pub cal_user_id: Uuid,
+    pub color: String,
 }

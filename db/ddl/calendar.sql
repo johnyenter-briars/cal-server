@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS calendar (
     name TEXT NOT NULL,
     description TEXT,
     caluserid TEXT NOT NULL,
+    color TEXT NOT NULL,
 
     FOREIGN KEY (caluserid) REFERENCES caluser(id)
 )

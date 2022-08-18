@@ -5,7 +5,7 @@ use serde::Serialize;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CalendarsResponse {
-    events: Vec<Calendar>,
+    calendars: Vec<Calendar>,
     status_code: u32,
     message: String,
 }
@@ -16,7 +16,7 @@ impl CalendarsResponse {
             CalendarsResponse {
                 status_code: 200,
                 message: "Calendars found".to_string(),
-                events: calendars,
+                calendars,
             }
             .as_serde_string(),
         )
@@ -29,7 +29,7 @@ impl CalendarsResponse {
                 CalendarsResponse {
                     status_code: 400,
                     message: "No calendars found for user".to_string(),
-                    events: vec![],
+                    calendars: vec![],
                 }
                 .as_serde_string(),
             )
@@ -42,7 +42,7 @@ impl CalendarsResponse {
                 CalendarsResponse {
                     status_code: 500,
                     message,
-                    events: vec![],
+                    calendars: vec![],
                 }
                 .as_serde_string(),
             )

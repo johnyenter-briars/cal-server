@@ -12,6 +12,7 @@ pub struct Calendar {
     pub name: String,
     pub description: Option<String>,
     pub cal_user_id: Uuid,
+    pub color: String,
 }
 
 impl ConstructableFromSql<Calendar> for Calendar {
@@ -24,6 +25,7 @@ impl ConstructableFromSql<Calendar> for Calendar {
             name: row.get(1)?,
             description: row.get(2)?,
             cal_user_id: Uuid::parse_str(&row.get::<usize, String>(3)?)?,
+            color: row.get(4)?,
         })
     }
 }

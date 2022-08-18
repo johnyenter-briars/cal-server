@@ -69,13 +69,50 @@ fn add_test_data(
 ) -> Result<(), Box<dyn std::error::Error>> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
-    let calendar_id = conn.create_calendar(
+    let bday_calendar_id = conn.create_calendar(
         CreateCalendarRequest {
             name: "Birthdays".to_string(),
             description: None,
             cal_user_id: user_id,
+            color: "blue".to_string(),
         },
         Some(Uuid::parse_str("aebb3df3-d1fa-4f21-af2f-a98d0774f3ac")?),
+    )?;
+
+    let work_calendar_id = conn.create_calendar(
+        CreateCalendarRequest {
+            name: "work".to_string(),
+            description: None,
+            cal_user_id: user_id,
+            color: "red".to_string(),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "work event 1".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now()),
+            end_time: Some(Utc::now() + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+        },
+        None,
+    )?;
+    
+    conn.create_event(
+        CreateEventRequest {
+            name: "work event 2".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::days(2)),
+            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+        },
+        None,
     )?;
 
     // An event that is 0 seconds long - not part of a series
@@ -87,7 +124,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
-            calendar_id,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -109,7 +146,7 @@ fn add_test_data(
         event_start_time: chrono::Duration::seconds(1000),
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
-        calendar_id,
+        calendar_id: bday_calendar_id,
     })?;
 
     //create two events for it
@@ -121,7 +158,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
-            calendar_id,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -134,7 +171,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
-            calendar_id,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -148,7 +185,7 @@ fn add_test_data(
             end_time: Some(Utc::now() - Duration::days(1) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
-            calendar_id,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -162,7 +199,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::days(1) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
-            calendar_id,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
