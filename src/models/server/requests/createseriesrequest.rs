@@ -8,7 +8,7 @@ use uuid::Uuid;
 #[serde(rename_all = "camelCase")]
 pub struct CreateSeriesRequest {
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub repeat_every_week: u32,
     pub repeat_on_mon: bool,
     pub repeat_on_tues: bool,
