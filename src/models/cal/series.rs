@@ -12,7 +12,7 @@ use crate::models::traits::construct::ConstructableFromSql;
 pub struct Series {
     pub id: Uuid,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub repeat_every_week: u32,
     pub repeat_on_mon: bool,
     pub repeat_on_tues: bool,

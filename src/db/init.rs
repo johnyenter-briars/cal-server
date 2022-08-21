@@ -132,7 +132,7 @@ fn add_test_data(
     //create the series
     let series_id = conn.create_series(CreateSeriesRequest {
         name: "series test".to_string(),
-        description: "".to_string(),
+        description: Some("i literally dk".to_string()),
         repeat_every_week: 1,
         repeat_on_mon: true,
         repeat_on_tues: false,
