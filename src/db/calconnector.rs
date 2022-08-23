@@ -217,7 +217,7 @@ impl CalConnector {
                 series_req.repeat_on_fri,
                 series_req.repeat_on_sat,
                 series_req.repeat_on_sun,
-                series_req.ends_on.timestamp(),
+                series_req.starts_on.timestamp(),
                 series_req.ends_on.timestamp(),
                 series_req.event_start_time.num_seconds(),
                 series_req.event_end_time.num_seconds(),
