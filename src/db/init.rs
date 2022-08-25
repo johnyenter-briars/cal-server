@@ -118,7 +118,7 @@ fn add_test_data(
     // An event that is 0 seconds long - not part of a series
     conn.create_event(
         CreateEventRequest {
-            name: "event1".to_string(),
+            name: "event idk".to_string(),
             description: Some("some description here".to_string()),
             start_time: Some(Utc::now()),
             end_time: Some(Utc::now() + Duration::hours(1)),
@@ -142,7 +142,7 @@ fn add_test_data(
         repeat_on_sat: false,
         repeat_on_sun: false,
         starts_on: Utc::now(),
-        ends_on: Utc::now(),
+        ends_on: Utc::now() + Duration::days(1),
         event_start_time: chrono::Duration::seconds(1000),
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
@@ -152,9 +152,9 @@ fn add_test_data(
     //create two events for it
     conn.create_event(
         CreateEventRequest {
-            name: "event2".to_string(),
+            name: "this is part of a series".to_string(),
             description: Some("some description here".to_string()),
-            start_time: Some(Utc::now()),
+            start_time: Some(Utc::now() + Duration::minutes(30)),
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
@@ -165,9 +165,9 @@ fn add_test_data(
 
     conn.create_event(
         CreateEventRequest {
-            name: "event3".to_string(),
+            name: "this is part of a series part 2".to_string(),
             description: Some("some description here".to_string()),
-            start_time: Some(Utc::now()),
+            start_time: Some(Utc::now() + Duration::minutes(30)),
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
