@@ -4,7 +4,8 @@ use std::{
 };
 
 use crate::models::server::requests::{
-    createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
+    createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
+    createseriesrequest::CreateSeriesRequest,
 };
 
 use super::{calconnector::CalConnector, DB_FOLDER_PATH, DB_INITIAL_NAME};
@@ -27,6 +28,8 @@ pub fn initiaize_db(
     raw_conn.execute(&get_sql_file_contents("caluser")?, [])?;
 
     raw_conn.execute(&get_sql_file_contents("event")?, [])?;
+
+    raw_conn.execute(&get_sql_file_contents("calendar")?, [])?;
 
     drop(raw_conn);
 
@@ -66,15 +69,62 @@ fn add_test_data(
 ) -> Result<(), Box<dyn std::error::Error>> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
-    // An event that is 0 seconds long - not part of a series
+    let bday_calendar_id = conn.create_calendar(
+        CreateCalendarRequest {
+            name: "Birthdays".to_string(),
+            description: None,
+            cal_user_id: user_id,
+            color: "blue".to_string(),
+        },
+        Some(Uuid::parse_str("aebb3df3-d1fa-4f21-af2f-a98d0774f3ac")?),
+    )?;
+
+    let work_calendar_id = conn.create_calendar(
+        CreateCalendarRequest {
+            name: "work".to_string(),
+            description: None,
+            cal_user_id: user_id,
+            color: "red".to_string(),
+        },
+        None,
+    )?;
+
     conn.create_event(
         CreateEventRequest {
-            name: "event1".to_string(),
+            name: "work event 1".to_string(),
             description: Some("some description here".to_string()),
             start_time: Some(Utc::now()),
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
+            calendar_id: work_calendar_id,
+        },
+        None,
+    )?;
+    
+    conn.create_event(
+        CreateEventRequest {
+            name: "work event 2".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::days(2)),
+            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+        },
+        None,
+    )?;
+
+    // An event that is 0 seconds long - not part of a series
+    conn.create_event(
+        CreateEventRequest {
+            name: "event idk".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now()),
+            end_time: Some(Utc::now() + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -82,7 +132,7 @@ fn add_test_data(
     //create the series
     let series_id = conn.create_series(CreateSeriesRequest {
         name: "series test".to_string(),
-        description: "".to_string(),
+        description: Some("i literally dk".to_string()),
         repeat_every_week: 1,
         repeat_on_mon: true,
         repeat_on_tues: false,
@@ -92,33 +142,36 @@ fn add_test_data(
         repeat_on_sat: false,
         repeat_on_sun: false,
         starts_on: Utc::now(),
-        ends_on: Utc::now(),
+        ends_on: Utc::now() + Duration::days(1),
         event_start_time: chrono::Duration::seconds(1000),
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
+        calendar_id: bday_calendar_id,
     })?;
 
     //create two events for it
     conn.create_event(
         CreateEventRequest {
-            name: "event2".to_string(),
+            name: "this is part of a series".to_string(),
             description: Some("some description here".to_string()),
-            start_time: Some(Utc::now()),
+            start_time: Some(Utc::now() + Duration::minutes(30)),
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
 
     conn.create_event(
         CreateEventRequest {
-            name: "event3".to_string(),
+            name: "this is part of a series part 2".to_string(),
             description: Some("some description here".to_string()),
-            start_time: Some(Utc::now()),
+            start_time: Some(Utc::now() + Duration::minutes(30)),
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: Some(series_id),
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -132,6 +185,7 @@ fn add_test_data(
             end_time: Some(Utc::now() - Duration::days(1) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
@@ -145,6 +199,7 @@ fn add_test_data(
             end_time: Some(Utc::now() + Duration::days(1) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
+            calendar_id: bday_calendar_id,
         },
         None,
     )?;
