@@ -3,7 +3,7 @@ use crate::{
         requests::createseriesrequest::CreateSeriesRequest,
         responses::{
             createseriesresponse::CreateSeriesResponse,
-            deletedentityresponse::DeletedEntityResponse, seriesresponse::SeriesResponse,
+            deletedentityresponse::DeletedEntityResponse, seriesresponse::SeriesResponse, allseriesresponse::AllSeriesResponse,
         },
     },
     server::httpserver::AppState,
@@ -24,6 +24,14 @@ pub async fn create_series(
     {
         Ok(series_id) => CreateSeriesResponse::created(series_id),
         Err(e) => CreateSeriesResponse::error(e.to_string()),
+    }
+}
+
+#[get("/api/series")]
+pub async fn get_all_series(state: web::Data<AppState>) -> HttpResponse {
+    match state.cal_connector.lock().unwrap().get_all_series() {
+        Ok(s) => AllSeriesResponse::ok(s),
+        Err(e) => AllSeriesResponse::error(e.to_string()),
     }
 }
 
