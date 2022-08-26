@@ -14,6 +14,7 @@ pub struct UpdateEventRequest {
     pub description: Option<String>,
     pub cal_user_id: Uuid,
     pub series_id: Option<Uuid>,
+    pub calendar_id: Uuid,
 }
 
 impl Validatable for UpdateEventRequest {

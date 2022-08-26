@@ -8,7 +8,7 @@ use uuid::Uuid;
 #[serde(rename_all = "camelCase")]
 pub struct CreateSeriesRequest {
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub repeat_every_week: u32,
     pub repeat_on_mon: bool,
     pub repeat_on_tues: bool,
@@ -24,4 +24,5 @@ pub struct CreateSeriesRequest {
     #[serde_as(as = "serde_with::DurationSeconds<i64>")]
     pub event_end_time: Duration,
     pub cal_user_id: Uuid,
+    pub calendar_id: Uuid,
 }

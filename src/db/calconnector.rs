@@ -1,9 +1,9 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::models::{
-    cal::{caluser::CalUser, event::Event, series::Series},
+    cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
     server::requests::{
-        createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest,
-        updateeventrequest::UpdateEventRequest,
+        createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
+        createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
     },
     traits::construct::ConstructableFromSql,
 };
@@ -108,7 +108,7 @@ impl CalConnector {
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             params![
                 new_id.to_string(),
                 event_req.start_time.map(|t| t.timestamp()),
@@ -117,6 +117,29 @@ impl CalConnector {
                 event_req.description,
                 event_req.cal_user_id.to_string(),
                 event_req.series_id.map(|t| t.to_string()),
+                event_req.calendar_id.to_string(),
+            ],
+        )?;
+
+        Ok(new_id)
+    }
+
+    pub fn create_calendar(
+        &self,
+        calendar_req: CreateCalendarRequest,
+        id: Option<Uuid>,
+    ) -> Result<Uuid, Box<dyn Error>> {
+        let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
+        let conn = Connection::open(&self.path_to_db)?;
+
+        conn.execute(
+            "INSERT INTO calendar (id, name, description, caluserid, color) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![
+                new_id.to_string(),
+                calendar_req.name,
+                calendar_req.description,
+                calendar_req.cal_user_id.to_string(),
+                calendar_req.color.to_string(),
             ],
         )?;
 
@@ -179,8 +202,9 @@ impl CalConnector {
                 endson,
                 eventstarttime,
                 eventendtime,
-                caluserid 
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)",
+                caluserid, 
+                calendarid
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
             params![
                 new_id.to_string(),
                 series_req.name,
@@ -193,11 +217,12 @@ impl CalConnector {
                 series_req.repeat_on_fri,
                 series_req.repeat_on_sat,
                 series_req.repeat_on_sun,
-                series_req.ends_on.timestamp(),
+                series_req.starts_on.timestamp(),
                 series_req.ends_on.timestamp(),
                 series_req.event_start_time.num_seconds(),
                 series_req.event_end_time.num_seconds(),
                 series_req.cal_user_id.to_string(),
+                series_req.calendar_id.to_string(),
             ],
         )?;
 
@@ -205,9 +230,8 @@ impl CalConnector {
     }
 
     pub fn get_caluser(&self, uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
-        let mut users = self.get_records::<CalUser>(&format!(
-            "SELECT id, firstname, lastname, apikey FROM caluser where id = '{uuid}'"
-        ))?;
+        let mut users =
+            self.get_records::<CalUser>(&format!("SELECT * FROM caluser where id = '{uuid}'"))?;
 
         Ok(users.pop())
     }
@@ -217,6 +241,32 @@ impl CalConnector {
             self.get_records::<Series>(&format!("SELECT * FROM series where id = '{id}'"))?;
 
         Ok(seri.pop())
+    }
+
+    pub fn get_all_series(&self) -> Result<Vec<Series>, Box<dyn Error>> {
+        self.get_records::<Series>("SELECT * FROM series")
+    }
+
+    pub fn get_calendars(&self) -> Result<Vec<Calendar>, Box<dyn Error>> {
+        self.get_records::<Calendar>("SELECT * FROM calendar")
+    }
+
+    pub fn delete_calendar(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
+        let series_in_calendar = self
+            .get_all_series()?
+            .into_iter()
+            .filter(|s| s.calendar_id == id)
+            .collect::<Vec<Series>>();
+
+        for s in series_in_calendar {
+            let _ = self.delete_series(s.id)?;
+        }
+
+        for e in self.get_events()? {
+            let _ = self.delete_event(e.id)?;
+        }
+
+        self.delete_entity(id, "calendar")
     }
 
     pub fn delete_series(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
@@ -256,9 +306,7 @@ impl CalConnector {
     }
 
     pub fn get_events(&self) -> Result<Vec<Event>, Box<dyn Error>> {
-        self.get_records::<Event>(
-            "SELECT id, starttime, endtime, name, description, caluserid, seriesid name FROM event",
-        )
+        self.get_records::<Event>("SELECT * FROM event")
     }
 
     fn get_records<T>(&self, sql: &str) -> Result<Vec<T>, Box<dyn Error>>
