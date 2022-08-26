@@ -1,3 +1,4 @@
+pub mod allseriesresponse;
 pub mod calendarsresponse;
 pub mod caluserresponse;
 pub mod createcalendarresponse;
