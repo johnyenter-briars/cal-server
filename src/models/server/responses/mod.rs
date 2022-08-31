@@ -12,3 +12,4 @@ pub mod loaddatabaseresponse;
 pub mod savedatabaseresponse;
 pub mod seriesresponse;
 pub mod updateeventresponse;
+pub mod updateseriesresponse;
