@@ -4,7 +4,6 @@ use crate::models::{
     server::requests::{
         createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
         createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
-        updateseriesrequest::UpdateSeriesRequest,
     },
     traits::construct::ConstructableFromSql,
 };
@@ -233,17 +232,6 @@ impl CalConnector {
         )?;
 
         Ok(new_id)
-    }
-
-    pub fn update_series(
-        &self,
-        update_series_req: UpdateSeriesRequest,
-    ) -> Result<Uuid, Box<dyn Error>> {
-        let _ = self.delete_series(update_series_req.id)?;
-        let series_req = update_series_req.to_create_series_request();
-        let id = self.create_series(series_req, Some(update_series_req.id))?;
-
-        Ok(id)
     }
 
     pub fn get_caluser(&self, uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
