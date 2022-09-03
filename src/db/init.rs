@@ -147,7 +147,7 @@ fn add_test_data(
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
         calendar_id: bday_calendar_id,
-    })?;
+    }, None)?;
 
     //create two events for it
     conn.create_event(

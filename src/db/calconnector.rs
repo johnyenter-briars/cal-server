@@ -181,8 +181,13 @@ impl CalConnector {
         Ok(id)
     }
 
-    pub fn create_series(&self, series_req: CreateSeriesRequest) -> Result<Uuid, Box<dyn Error>> {
-        let new_id = CalConnector::generate_random_id();
+    pub fn create_series(
+        &self,
+        series_req: CreateSeriesRequest,
+        id: Option<Uuid>,
+    ) -> Result<Uuid, Box<dyn Error>> {
+        let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
+        // let new_id = CalConnector::generate_random_id();
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(

@@ -1,9 +1,11 @@
 use crate::{
     models::server::{
-        requests::createseriesrequest::CreateSeriesRequest,
+        requests::{
+            createseriesrequest::CreateSeriesRequest, 
+        },
         responses::{
-            createseriesresponse::CreateSeriesResponse,
-            deletedentityresponse::DeletedEntityResponse, seriesresponse::SeriesResponse, allseriesresponse::AllSeriesResponse,
+            allseriesresponse::AllSeriesResponse, createseriesresponse::CreateSeriesResponse,
+            deletedentityresponse::DeletedEntityResponse, seriesresponse::SeriesResponse,
         },
     },
     server::httpserver::AppState,
@@ -20,7 +22,7 @@ pub async fn create_series(
         .cal_connector
         .lock()
         .unwrap()
-        .create_series(create_series_req.0)
+        .create_series(create_series_req.0, None)
     {
         Ok(series_id) => CreateSeriesResponse::created(series_id),
         Err(e) => CreateSeriesResponse::error(e.to_string()),
