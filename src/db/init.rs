@@ -10,7 +10,7 @@ use crate::{models::server::requests::{
 
 use super::{calconnector::CalConnector, DB_FOLDER_PATH, DB_INITIAL_NAME};
 use chrono::{Duration, Utc};
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection};
 use uuid::Uuid;
 
 pub fn initiaize_db(
