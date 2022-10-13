@@ -3,7 +3,7 @@ use rusqlite::Row;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::models::traits::construct::ConstructableFromSql;
+use crate::{models::traits::construct::ConstructableFromSql, CalResult};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,7 +16,7 @@ pub struct Calendar {
 }
 
 impl ConstructableFromSql<Calendar> for Calendar {
-    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>>
+    fn construct(row: &Row) -> CalResult<Self>
     where
         Self: std::marker::Sized,
     {

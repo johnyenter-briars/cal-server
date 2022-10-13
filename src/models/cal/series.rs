@@ -4,7 +4,7 @@ use serde::Serialize;
 use serde_with::serde_as;
 use uuid::Uuid;
 
-use crate::models::traits::construct::ConstructableFromSql;
+use crate::{models::traits::construct::ConstructableFromSql, CalResult};
 
 #[serde_as]
 #[derive(Serialize, Debug)]
@@ -32,7 +32,7 @@ pub struct Series {
 }
 
 impl ConstructableFromSql<Series> for Series {
-    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>>
+    fn construct(row: &Row) -> CalResult<Self>
     where
         Self: std::marker::Sized,
     {
