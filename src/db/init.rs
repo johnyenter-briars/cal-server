@@ -3,14 +3,14 @@ use std::{
     io::{ErrorKind, Read},
 };
 
-use crate::models::server::requests::{
+use crate::{models::server::requests::{
     createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
     createseriesrequest::CreateSeriesRequest,
-};
+}, CalResult};
 
 use super::{calconnector::CalConnector, DB_FOLDER_PATH, DB_INITIAL_NAME};
 use chrono::{Duration, Utc};
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection};
 use uuid::Uuid;
 
 pub fn initiaize_db(
@@ -18,7 +18,7 @@ pub fn initiaize_db(
     user_id: &str,
     api_key: &str,
     conn: &CalConnector,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> CalResult<()> {
     delete_database()?;
 
     let raw_conn = Connection::open(initial_db_path())?;
@@ -45,14 +45,14 @@ fn initial_db_path() -> String {
     format!("{}{}", DB_FOLDER_PATH, DB_INITIAL_NAME)
 }
 
-fn get_sql_file_contents(file_name: &str) -> Result<String, Box<dyn std::error::Error>> {
+fn get_sql_file_contents(file_name: &str) -> CalResult<String> {
     let mut file = File::open(format!("./db/ddl/{}.sql", file_name))?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     Ok(contents)
 }
 
-fn delete_database() -> Result<(), Box<dyn std::error::Error>> {
+fn delete_database() -> CalResult<()> {
     match fs::remove_file(initial_db_path()) {
         Ok(_) => Ok(()),
         Err(error) => match error.kind() {
@@ -66,7 +66,7 @@ fn add_test_data(
     user_id: Uuid,
     api_key: &str,
     conn: &CalConnector,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> CalResult<()> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     let bday_calendar_id = conn.create_calendar(
