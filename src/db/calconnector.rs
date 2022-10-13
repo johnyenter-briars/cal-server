@@ -1,11 +1,14 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
-use crate::models::{
-    cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
-    server::requests::{
-        createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
-        createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
+use crate::{
+    models::{
+        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
+        server::requests::{
+            createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
+            createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
+        },
+        traits::construct::ConstructableFromSql,
     },
-    traits::construct::ConstructableFromSql,
+    CalResult,
 };
 
 use chrono::Utc;
@@ -27,7 +30,7 @@ impl CalConnector {
         }
     }
 
-    pub fn save_database(&self) -> Result<Uuid, Box<dyn Error>> {
+    pub fn save_database(&self) -> CalResult<Uuid> {
         let id = CalConnector::generate_random_id();
 
         fs::copy(
@@ -38,8 +41,7 @@ impl CalConnector {
         Ok(id)
     }
 
-    ///TODO: this function could probably be a little more idiomatic
-    pub fn list_database_saves(&self) -> Result<Vec<String>, Box<dyn Error>> {
+    pub fn list_database_saves(&self) -> CalResult<Vec<String>> {
         let mut v: Vec<String> = fs::read_dir(DB_FOLDER_PATH)?
             .into_iter()
             .map(|f| f.unwrap().file_name())
@@ -54,7 +56,7 @@ impl CalConnector {
         Ok(v)
     }
 
-    pub fn load_database_save(&self, id: Uuid) -> Result<(), Box<dyn Error>> {
+    pub fn load_database_save(&self, id: Uuid) -> CalResult<()> {
         self.save_database()?;
 
         let saves = self.list_database_saves()?;
@@ -83,7 +85,7 @@ impl CalConnector {
         last_name: &str,
         id: Option<Uuid>,
         api_key: &str,
-    ) -> Result<Uuid, Box<dyn Error>> {
+    ) -> CalResult<Uuid> {
         let new_id = match id {
             Some(id) => id,
             None => CalConnector::generate_random_id(),
@@ -103,7 +105,7 @@ impl CalConnector {
         &self,
         event_req: CreateEventRequest,
         id: Option<Uuid>,
-    ) -> Result<Uuid, Box<dyn Error>> {
+    ) -> CalResult<Uuid> {
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(&self.path_to_db)?;
 
@@ -128,7 +130,7 @@ impl CalConnector {
         &self,
         calendar_req: CreateCalendarRequest,
         id: Option<Uuid>,
-    ) -> Result<Uuid, Box<dyn Error>> {
+    ) -> CalResult<Uuid> {
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(&self.path_to_db)?;
 
@@ -146,7 +148,7 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn update_event(&self, event_req: UpdateEventRequest) -> Result<Uuid, Box<dyn Error>> {
+    pub fn update_event(&self, event_req: UpdateEventRequest) -> CalResult<Uuid> {
         if (event_req.start_time.is_none() && event_req.end_time.is_some())
             || (event_req.start_time.is_some() && event_req.end_time.is_none())
         {
@@ -185,7 +187,7 @@ impl CalConnector {
         &self,
         series_req: CreateSeriesRequest,
         id: Option<Uuid>,
-    ) -> Result<Uuid, Box<dyn Error>> {
+    ) -> CalResult<Uuid> {
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         // let new_id = CalConnector::generate_random_id();
         let conn = Connection::open(&self.path_to_db)?;
@@ -234,29 +236,29 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn get_caluser(&self, uuid: Uuid) -> Result<Option<CalUser>, Box<dyn Error>> {
+    pub fn get_caluser(&self, uuid: Uuid) -> CalResult<Option<CalUser>> {
         let mut users =
             self.get_records::<CalUser>(&format!("SELECT * FROM caluser where id = '{uuid}'"))?;
 
         Ok(users.pop())
     }
 
-    pub fn get_series(&self, id: Uuid) -> Result<Option<Series>, Box<dyn Error>> {
+    pub fn get_series(&self, id: Uuid) -> CalResult<Option<Series>> {
         let mut seri =
             self.get_records::<Series>(&format!("SELECT * FROM series where id = '{id}'"))?;
 
         Ok(seri.pop())
     }
 
-    pub fn get_all_series(&self) -> Result<Vec<Series>, Box<dyn Error>> {
+    pub fn get_all_series(&self) -> CalResult<Vec<Series>> {
         self.get_records::<Series>("SELECT * FROM series")
     }
 
-    pub fn get_calendars(&self) -> Result<Vec<Calendar>, Box<dyn Error>> {
+    pub fn get_calendars(&self) -> CalResult<Vec<Calendar>> {
         self.get_records::<Calendar>("SELECT * FROM calendar")
     }
 
-    pub fn delete_calendar(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
+    pub fn delete_calendar(&self, id: Uuid) -> CalResult<Option<Uuid>> {
         let series_in_calendar = self
             .get_all_series()?
             .into_iter()
@@ -274,7 +276,7 @@ impl CalConnector {
         self.delete_entity(id, "calendar")
     }
 
-    pub fn delete_series(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
+    pub fn delete_series(&self, id: Uuid) -> CalResult<Option<Uuid>> {
         let sub_events = self
             .get_events()?
             .into_iter()
@@ -292,11 +294,11 @@ impl CalConnector {
         self.delete_entity(id, "series")
     }
 
-    pub fn delete_event(&self, id: Uuid) -> Result<Option<Uuid>, Box<dyn Error>> {
+    pub fn delete_event(&self, id: Uuid) -> CalResult<Option<Uuid>> {
         self.delete_entity(id, "event")
     }
 
-    pub fn delete_entity(&self, id: Uuid, entity: &str) -> Result<Option<Uuid>, Box<dyn Error>> {
+    pub fn delete_entity(&self, id: Uuid, entity: &str) -> CalResult<Option<Uuid>> {
         let conn = Connection::open(&self.path_to_db)?;
 
         let mut stmt = conn.prepare(&format!("DELETE FROM {entity} WHERE id = '{id}'"))?;
@@ -310,11 +312,11 @@ impl CalConnector {
         Ok(Some(id))
     }
 
-    pub fn get_events(&self) -> Result<Vec<Event>, Box<dyn Error>> {
+    pub fn get_events(&self) -> CalResult<Vec<Event>> {
         self.get_records::<Event>("SELECT * FROM event")
     }
 
-    fn get_records<T>(&self, sql: &str) -> Result<Vec<T>, Box<dyn Error>>
+    fn get_records<T>(&self, sql: &str) -> CalResult<Vec<T>>
     where
         T: ConstructableFromSql<T>,
     {

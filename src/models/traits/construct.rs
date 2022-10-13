@@ -1,7 +1,9 @@
 use rusqlite::Row;
 
+use crate::CalResult;
+
 pub trait ConstructableFromSql<T> {
-    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>>
+    fn construct(row: &Row) -> CalResult<Self>
     where
         Self: std::marker::Sized;
 }

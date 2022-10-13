@@ -1,4 +1,4 @@
-use crate::models::traits::construct::ConstructableFromSql;
+use crate::{models::traits::construct::ConstructableFromSql, CalResult};
 use rusqlite::Row;
 use serde::Serialize;
 use uuid::Uuid;
@@ -12,7 +12,7 @@ pub struct CalUser {
 }
 
 impl ConstructableFromSql<CalUser> for CalUser {
-    fn construct(row: &Row) -> Result<Self, Box<dyn std::error::Error>>
+    fn construct(row: &Row) -> CalResult<Self>
     where
         Self: std::marker::Sized,
     {
