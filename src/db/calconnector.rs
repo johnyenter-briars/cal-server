@@ -13,7 +13,7 @@ use crate::{
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
-use std::{error::Error, fs};
+use std::{fs};
 use uuid::Uuid;
 
 pub struct CalConnector {
