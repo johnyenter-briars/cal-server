@@ -1,7 +1,12 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
+        cal::{
+            calendar::Calendar,
+            caluser::CalUser,
+            event::{self, Event},
+            series::Series,
+        },
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
             createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
@@ -11,9 +16,10 @@ use crate::{
     CalResult,
 };
 
-use chrono::Utc;
+use chrono::{Datelike, Utc};
+use env_logger::filter;
 use rusqlite::{params, Connection};
-use std::{fs};
+use std::fs;
 use uuid::Uuid;
 
 pub struct CalConnector {
@@ -101,11 +107,7 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn create_event(
-        &self,
-        event_req: CreateEventRequest,
-        id: Option<Uuid>,
-    ) -> CalResult<Uuid> {
+    pub fn create_event(&self, event_req: CreateEventRequest, id: Option<Uuid>) -> CalResult<Uuid> {
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(&self.path_to_db)?;
 
@@ -314,6 +316,20 @@ impl CalConnector {
 
     pub fn get_events(&self) -> CalResult<Vec<Event>> {
         self.get_records::<Event>("SELECT * FROM event")
+    }
+
+    pub fn get_events_month_year(&self, year: i32, month: u32) -> CalResult<Vec<Event>> {
+        let events = self.get_records::<Event>("SELECT * FROM event")?;
+
+        let filtered = events
+            .into_iter()
+            .filter(|e| match e.start_time {
+                Some(d) => d.month() == month && d.year() == year,
+                None => false,
+            })
+            .collect::<Vec<Event>>();
+
+        Ok(filtered)
     }
 
     fn get_records<T>(&self, sql: &str) -> CalResult<Vec<T>>
