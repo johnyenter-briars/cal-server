@@ -73,6 +73,14 @@ pub async fn get_events(state: web::Data<AppState>) -> HttpResponse {
     }
 }
 
+#[get("/api/event/{year}/{month}")]
+pub async fn get_events_of_month(params: web::Path<(i32, u32)>, state: web::Data<AppState>) -> HttpResponse {
+    match state.cal_connector.lock().unwrap().get_events_month_year(params.0, params.1) {
+        Ok(events) => EventsResponse::ok(events),
+        Err(e) => EventsResponse::error(e.to_string()),
+    }
+}
+
 #[delete("/api/event/{uuid}")]
 pub async fn delete_event(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
     let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
