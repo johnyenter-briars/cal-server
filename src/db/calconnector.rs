@@ -1,12 +1,7 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{
-            calendar::Calendar,
-            caluser::CalUser,
-            event::{self, Event},
-            series::Series,
-        },
+        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
             createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
@@ -17,7 +12,6 @@ use crate::{
 };
 
 use chrono::{Datelike, Utc};
-use env_logger::filter;
 use rusqlite::{params, Connection};
 use std::fs;
 use uuid::Uuid;
@@ -108,11 +102,16 @@ impl CalConnector {
     }
 
     pub fn create_event(&self, event_req: CreateEventRequest, id: Option<Uuid>) -> CalResult<Uuid> {
+        let color = match event_req.series_id {
+            Some(id) => self.get_series(id)?.unwrap().color,
+            None => "red".to_string(),
+        };
+
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid, color) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
             params![
                 new_id.to_string(),
                 event_req.start_time.map(|t| t.timestamp()),
@@ -122,6 +121,7 @@ impl CalConnector {
                 event_req.cal_user_id.to_string(),
                 event_req.series_id.map(|t| t.to_string()),
                 event_req.calendar_id.to_string(),
+                color,
             ],
         )?;
 
@@ -212,8 +212,9 @@ impl CalConnector {
                 eventstarttime,
                 eventendtime,
                 caluserid, 
-                calendarid
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
+                calendarid,
+                color
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)",
             params![
                 new_id.to_string(),
                 series_req.name,
@@ -232,6 +233,7 @@ impl CalConnector {
                 series_req.event_end_time.num_seconds(),
                 series_req.cal_user_id.to_string(),
                 series_req.calendar_id.to_string(),
+                series_req.color.to_string(),
             ],
         )?;
 
