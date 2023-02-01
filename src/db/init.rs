@@ -102,84 +102,84 @@ fn add_test_data(
         None,
     )?;
 
-    conn.create_event(
-        CreateEventRequest {
-            name: "this should be in ebuary".to_string(),
-            description: Some("some description here".to_string()),
-            start_time: Some(Utc::now() + Duration::days(20)),
-            end_time: Some(Utc::now() + Duration::days(20) + Duration::hours(1)),
-            cal_user_id: user_id,
-            series_id: None,
-            calendar_id: work_calendar_id,
-        },
-        None,
-    )?;
+    // conn.create_event(
+    //     CreateEventRequest {
+    //         name: "this should be in ebuary".to_string(),
+    //         description: Some("some description here".to_string()),
+    //         start_time: Some(Utc::now() + Duration::days(20)),
+    //         end_time: Some(Utc::now() + Duration::days(20) + Duration::hours(1)),
+    //         cal_user_id: user_id,
+    //         series_id: None,
+    //         calendar_id: work_calendar_id,
+    //     },
+    //     None,
+    // )?;
     
-    conn.create_event(
-        CreateEventRequest {
-            name: "work event 2".to_string(),
-            description: Some("some description here".to_string()),
-            start_time: Some(Utc::now() + Duration::minutes(3)),
-            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
-            cal_user_id: user_id,
-            series_id: None,
-            calendar_id: work_calendar_id,
-        },
-        None,
-    )?;
+    // conn.create_event(
+    //     CreateEventRequest {
+    //         name: "work event 2".to_string(),
+    //         description: Some("some description here".to_string()),
+    //         start_time: Some(Utc::now() + Duration::minutes(3)),
+    //         end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+    //         cal_user_id: user_id,
+    //         series_id: None,
+    //         calendar_id: work_calendar_id,
+    //     },
+    //     None,
+    // )?;
 
-    conn.create_event(
-        CreateEventRequest {
-            name: "work event 3".to_string(),
-            description: Some("some description here".to_string()),
-            start_time: Some(Utc::now() + Duration::minutes(4)),
-            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
-            cal_user_id: user_id,
-            series_id: None,
-            calendar_id: work_calendar_id,
-        },
-        None,
-    )?;
+    // conn.create_event(
+    //     CreateEventRequest {
+    //         name: "work event 3".to_string(),
+    //         description: Some("some description here".to_string()),
+    //         start_time: Some(Utc::now() + Duration::minutes(4)),
+    //         end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+    //         cal_user_id: user_id,
+    //         series_id: None,
+    //         calendar_id: work_calendar_id,
+    //     },
+    //     None,
+    // )?;
 
-    conn.create_event(
-        CreateEventRequest {
-            name: "work event 4".to_string(),
-            description: Some("some description here".to_string()),
-            start_time: Some(Utc::now() + Duration::minutes(5)),
-            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
-            cal_user_id: user_id,
-            series_id: None,
-            calendar_id: work_calendar_id,
-        },
-        None,
-    )?;
+    // conn.create_event(
+    //     CreateEventRequest {
+    //         name: "work event 4".to_string(),
+    //         description: Some("some description here".to_string()),
+    //         start_time: Some(Utc::now() + Duration::minutes(5)),
+    //         end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+    //         cal_user_id: user_id,
+    //         series_id: None,
+    //         calendar_id: work_calendar_id,
+    //     },
+    //     None,
+    // )?;
 
-    conn.create_event(
-        CreateEventRequest {
-            name: "work event 5".to_string(),
-            description: Some("some description here".to_string()),
-            start_time: Some(Utc::now() + Duration::minutes(17)),
-            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
-            cal_user_id: user_id,
-            series_id: None,
-            calendar_id: work_calendar_id,
-        },
-        None,
-    )?;
+    // conn.create_event(
+    //     CreateEventRequest {
+    //         name: "work event 5".to_string(),
+    //         description: Some("some description here".to_string()),
+    //         start_time: Some(Utc::now() + Duration::minutes(17)),
+    //         end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+    //         cal_user_id: user_id,
+    //         series_id: None,
+    //         calendar_id: work_calendar_id,
+    //     },
+    //     None,
+    // )?;
 
-    // An event that is 0 seconds long - not part of a series
-    conn.create_event(
-        CreateEventRequest {
-            name: "event idk".to_string(),
-            description: Some("some description here".to_string()),
-            start_time: Some(Utc::now()),
-            end_time: Some(Utc::now() + Duration::hours(1)),
-            cal_user_id: user_id,
-            series_id: None,
-            calendar_id: bday_calendar_id,
-        },
-        None,
-    )?;
+    // // An event that is 0 seconds long - not part of a series
+    // conn.create_event(
+    //     CreateEventRequest {
+    //         name: "event idk".to_string(),
+    //         description: Some("some description here".to_string()),
+    //         start_time: Some(Utc::now()),
+    //         end_time: Some(Utc::now() + Duration::hours(1)),
+    //         cal_user_id: user_id,
+    //         series_id: None,
+    //         calendar_id: bday_calendar_id,
+    //     },
+    //     None,
+    // )?;
 
     //create the series
     let series_id = conn.create_series(CreateSeriesRequest {
@@ -199,6 +199,7 @@ fn add_test_data(
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
         calendar_id: bday_calendar_id,
+        color: "blue".to_string(),
     }, None)?;
 
     //create two events for it

@@ -16,6 +16,7 @@ pub struct Event {
     pub cal_user_id: Uuid,
     pub series_id: Option<Uuid>,
     pub calendar_id: Uuid,
+    pub color: String,
 }
 
 impl ConstructableFromSql<Event> for Event {
@@ -47,6 +48,7 @@ impl ConstructableFromSql<Event> for Event {
                 Err(_) => None,
             },
             calendar_id: Uuid::parse_str(&row.get::<usize, String>(7)?)?,
+            color: row.get(8)?,
         })
     }
 }
