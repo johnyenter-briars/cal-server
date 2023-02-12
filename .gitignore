@@ -4,3 +4,5 @@ cal.db
 Cargo.lock
 run.sh
 *.db
+.fleet/
+git-sim_media/

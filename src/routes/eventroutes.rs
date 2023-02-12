@@ -48,6 +48,7 @@ pub async fn update_event(
             cal_user_id: update_event_req.cal_user_id,
             series_id: update_event_req.series_id,
             calendar_id: update_event_req.calendar_id,
+            color: update_event_req.color.clone(),
         };
 
         return create_event_base(create_event_req, &cal_connector);
@@ -68,6 +69,14 @@ pub async fn update_event(
 #[get("/api/event")]
 pub async fn get_events(state: web::Data<AppState>) -> HttpResponse {
     match state.cal_connector.lock().unwrap().get_events() {
+        Ok(events) => EventsResponse::ok(events),
+        Err(e) => EventsResponse::error(e.to_string()),
+    }
+}
+
+#[get("/api/event/{year}/{month}")]
+pub async fn get_events_of_month(params: web::Path<(i32, u32)>, state: web::Data<AppState>) -> HttpResponse {
+    match state.cal_connector.lock().unwrap().get_events_month_year(params.0, params.1) {
         Ok(events) => EventsResponse::ok(events),
         Err(e) => EventsResponse::error(e.to_string()),
     }

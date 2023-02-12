@@ -1,0 +1,840 @@
+{
+	"info": {
+		"_postman_id": "840acdd8-57ea-4eaf-a4b4-902c7118af0a",
+		"name": "CAL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CAL-Server",
+			"item": [
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "Save database",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null,\n    \"startTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"endTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"seriesId\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/database/save",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"database",
+										"save"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Load database save",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null,\n    \"startTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"endTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"seriesId\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/database/load/512980ce-efe7-45ae-82ff-3bf032e3789a",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"database",
+										"load",
+										"512980ce-efe7-45ae-82ff-3bf032e3789a"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "List saves",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null,\n    \"startTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"endTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"seriesId\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/database/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"database",
+										"list"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get user",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/caluser/a188e597-29f9-4e2f-aa46-e3713d9939da",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"caluser",
+										"a188e597-29f9-4e2f-aa46-e3713d9939da"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create user",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"tony\",\n    \"lastName\": \"stark\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/caluser",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"caluser"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Websockets",
+					"item": [
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Series",
+					"item": [
+						{
+							"name": "Get Series",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/series/88cd23a2-ea4d-4774-9d36-3165f14b92eb",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"series",
+										"88cd23a2-ea4d-4774-9d36-3165f14b92eb"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Series",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"test\",\n  \"description\": \"please\",\n  \"repeatEveryWeek\": 2,\n  \"repeatOnMon\": false,\n  \"repeatOnTues\": false,\n  \"repeatOnWed\": false,\n  \"repeatOnThurs\": true,\n  \"repeatOnFri\": false,\n  \"repeatOnSat\": false,\n  \"repeatOnSun\": false,\n  \"startsOn\": \"2022-06-29T00:00:00Z\",\n  \"endsOn\": \"2022-10-29T00:00:00Z\",\n  \"eventStartTime\": 14400,\n  \"eventEndTime\": 0,\n  \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/series",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"series"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Series",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"88cd23a2-ea4d-4774-9d36-3165f14b92eb\",\n    \"name\": \"series test\",\n    \"description\": \"updating this\",\n    \"repeatEveryWeek\": 1,\n    \"repeatOnMon\": true,\n    \"repeatOnTues\": false,\n    \"repeatOnWed\": true,\n    \"repeatOnThurs\": false,\n    \"repeatOnFri\": false,\n    \"repeatOnSat\": true,\n    \"repeatOnSun\": false,\n    \"startsOn\": \"2022-08-30T12:42:23Z\",\n    \"endsOn\": \"2022-08-31T12:42:23Z\",\n    \"eventStartTime\": 1000,\n    \"eventEndTime\": 1000,\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"calendarId\": \"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/series",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"series"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Series",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"test\",\n  \"description\": \"please\",\n  \"repeatEveryWeek\": 2,\n  \"repeatOnMon\": false,\n  \"repeatOnTues\": false,\n  \"repeatOnWed\": false,\n  \"repeatOnThurs\": true,\n  \"repeatOnFri\": false,\n  \"repeatOnSat\": false,\n  \"repeatOnSun\": false,\n  \"startsOn\": \"2022-06-29T00:00:00Z\",\n  \"endsOn\": \"2022-10-29T00:00:00Z\",\n  \"eventStartTime\": 14400,\n  \"eventEndTime\": 0,\n  \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/series/f00381fe-e7d3-4a68-a933-af82efe0b0d1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"series",
+										"f00381fe-e7d3-4a68-a933-af82efe0b0d1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Event",
+					"item": [
+						{
+							"name": "Update Event",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"bd21883d-ec69-4323-98c1-bf6b790e905b\",\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"booga booga 222\",\n    \"description\": \"bro whatafaslgjashlkgj\",\n    \"startTime\": \"2022-05-28T13:45:30.0000000Z\",\n    \"endTime\": \"2022-05-28T14:45:30.0000000Z\",\n    \"seriesId\": null,\n    \"calendarId\": \"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/event",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Event",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null,\n    \"startTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"endTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"seriesId\": null,\n    \"calendarId\": \"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/event",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Event",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/event/86b1d903-40f1-49f0-b72f-bfce5d7445f3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"event",
+										"86b1d903-40f1-49f0-b72f-bfce5d7445f3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Events",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/event",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Events Year Month",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/event/2023/2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"event",
+										"2023",
+										"2"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Calendar",
+					"item": [
+						{
+							"name": "Update Event Copy",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"bd21883d-ec69-4323-98c1-bf6b790e905b\",\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"booga booga 222\",\n    \"description\": \"bro whatafaslgjashlkgj\",\n    \"startTime\": \"2022-05-28T13:45:30.0000000Z\",\n    \"endTime\": \"2022-05-28T14:45:30.0000000Z\",\n    \"seriesId\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/event",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Calendar",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/calendar",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"calendar"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Calendar",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"user-agent": true,
+									"host": true
+								}
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null,\n    \"startTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"endTime\": \"2009-06-15T13:45:30.0000000Z\",\n    \"seriesId\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/calendar/aebb3df3-d1fa-4f21-af2f-a98d0774f3ac",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"calendar",
+										"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Calendars For User",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-user-id",
+										"value": "{{user-id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/calendar/user/a188e597-29f9-4e2f-aa46-e3713d9939da",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"calendar",
+										"user",
+										"a188e597-29f9-4e2f-aa46-e3713d9939da"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
