@@ -267,6 +267,34 @@ fn add_test_data(
         },
         None,
     )?;
+    
+    conn.create_event(
+        CreateEventRequest {
+            name: "this should be in match".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::weeks(5)),
+            end_time: Some(Utc::now() + Duration::weeks(5) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: bday_calendar_id,
+            color: Some("Pink".to_string()),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "this should be in the future".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::weeks(25)),
+            end_time: Some(Utc::now() + Duration::weeks(25) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: bday_calendar_id,
+            color: Some("Purple".to_string()),
+        },
+        None,
+    )?;
 
     Ok(())
 }
