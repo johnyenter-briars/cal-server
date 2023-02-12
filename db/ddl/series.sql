@@ -15,5 +15,6 @@ CREATE TABLE IF NOT EXISTS series (
     eventstarttime INTEGER,
     eventendtime INTEGER,
     caluserid TEXT NOT NULL,
-    calendarid TEXT NOT NULL
+    calendarid TEXT NOT NULL,
+    color TEXT NOT NULL
 )

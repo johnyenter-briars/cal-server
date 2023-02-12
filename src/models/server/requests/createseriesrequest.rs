@@ -25,4 +25,5 @@ pub struct CreateSeriesRequest {
     pub event_end_time: Duration,
     pub cal_user_id: Uuid,
     pub calendar_id: Uuid,
+    pub color: String,
 }

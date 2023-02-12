@@ -74,7 +74,7 @@ fn add_test_data(
             name: "Birthdays".to_string(),
             description: None,
             cal_user_id: user_id,
-            color: "blue".to_string(),
+            color: "Blue".to_string(),
         },
         Some(Uuid::parse_str("aebb3df3-d1fa-4f21-af2f-a98d0774f3ac")?),
     )?;
@@ -84,20 +84,35 @@ fn add_test_data(
             name: "work".to_string(),
             description: None,
             cal_user_id: user_id,
-            color: "red".to_string(),
+            color: "Red".to_string(),
         },
         None,
     )?;
 
     conn.create_event(
         CreateEventRequest {
-            name: "work event 1".to_string(),
+            name: "This event should notify".to_string(),
             description: Some("some description here".to_string()),
-            start_time: Some(Utc::now()),
+            start_time: Some(Utc::now() + Duration::minutes(7)),
             end_time: Some(Utc::now() + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
             calendar_id: work_calendar_id,
+            color: Some("Purple".to_string()),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "this should be in ebuary".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::days(20)),
+            end_time: Some(Utc::now() + Duration::days(20) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+            color: Some("Purple".to_string()),
         },
         None,
     )?;
@@ -106,11 +121,54 @@ fn add_test_data(
         CreateEventRequest {
             name: "work event 2".to_string(),
             description: Some("some description here".to_string()),
-            start_time: Some(Utc::now() + Duration::days(2)),
+            start_time: Some(Utc::now() + Duration::minutes(3)),
             end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
             cal_user_id: user_id,
             series_id: None,
             calendar_id: work_calendar_id,
+            color: Some("Pink".to_string()),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "work event 3".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::minutes(4)),
+            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+            color: Some("Pink".to_string()),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "work event 4".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::minutes(5)),
+            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+            color: Some("Yellow".to_string()),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "work event 5".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::minutes(17)),
+            end_time: Some(Utc::now() + Duration::days(2) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+            color: Some("Yellow".to_string()),
         },
         None,
     )?;
@@ -125,6 +183,7 @@ fn add_test_data(
             cal_user_id: user_id,
             series_id: None,
             calendar_id: bday_calendar_id,
+            color: Some("Pink".to_string()),
         },
         None,
     )?;
@@ -147,6 +206,7 @@ fn add_test_data(
         event_end_time: chrono::Duration::seconds(1000),
         cal_user_id: user_id,
         calendar_id: bday_calendar_id,
+        color: "Blue".to_string(),
     }, None)?;
 
     //create two events for it
@@ -159,6 +219,7 @@ fn add_test_data(
             cal_user_id: user_id,
             series_id: Some(series_id),
             calendar_id: bday_calendar_id,
+            color: Some("Green".to_string()),
         },
         None,
     )?;
@@ -172,6 +233,7 @@ fn add_test_data(
             cal_user_id: user_id,
             series_id: Some(series_id),
             calendar_id: bday_calendar_id,
+            color: Some("Purple".to_string()),
         },
         None,
     )?;
@@ -186,6 +248,7 @@ fn add_test_data(
             cal_user_id: user_id,
             series_id: None,
             calendar_id: bday_calendar_id,
+            color: Some("Orange".to_string()),
         },
         None,
     )?;
@@ -200,6 +263,35 @@ fn add_test_data(
             cal_user_id: user_id,
             series_id: None,
             calendar_id: bday_calendar_id,
+            color: Some("Green".to_string()),
+        },
+        None,
+    )?;
+    
+    conn.create_event(
+        CreateEventRequest {
+            name: "this should be in match".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::weeks(5)),
+            end_time: Some(Utc::now() + Duration::weeks(5) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: bday_calendar_id,
+            color: Some("Pink".to_string()),
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "this should be in the future".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::weeks(25)),
+            end_time: Some(Utc::now() + Duration::weeks(25) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: bday_calendar_id,
+            color: Some("Purple".to_string()),
         },
         None,
     )?;

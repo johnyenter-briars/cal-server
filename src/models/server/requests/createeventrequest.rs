@@ -14,6 +14,7 @@ pub struct CreateEventRequest {
     pub cal_user_id: Uuid,
     pub series_id: Option<Uuid>,
     pub calendar_id: Uuid,
+    pub color: Option<String>,
 }
 
 impl Validatable for CreateEventRequest {

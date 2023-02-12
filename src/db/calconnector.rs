@@ -11,9 +11,9 @@ use crate::{
     CalResult,
 };
 
-use chrono::Utc;
+use chrono::{Datelike, Utc};
 use rusqlite::{params, Connection};
-use std::{fs};
+use std::fs;
 use uuid::Uuid;
 
 pub struct CalConnector {
@@ -101,16 +101,17 @@ impl CalConnector {
         Ok(new_id)
     }
 
-    pub fn create_event(
-        &self,
-        event_req: CreateEventRequest,
-        id: Option<Uuid>,
-    ) -> CalResult<Uuid> {
+    pub fn create_event(&self, event_req: CreateEventRequest, id: Option<Uuid>) -> CalResult<Uuid> {
+        let color = match event_req.series_id {
+            Some(id) => self.get_series(id)?.unwrap().color,
+            None => event_req.color.unwrap_or("red".to_string()),
+        };
+
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid, color) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
             params![
                 new_id.to_string(),
                 event_req.start_time.map(|t| t.timestamp()),
@@ -120,6 +121,7 @@ impl CalConnector {
                 event_req.cal_user_id.to_string(),
                 event_req.series_id.map(|t| t.to_string()),
                 event_req.calendar_id.to_string(),
+                color,
             ],
         )?;
 
@@ -167,8 +169,9 @@ impl CalConnector {
                     endtime = ?2,
                     name = ?3,
                     description = ?4,
-                    seriesid = ?5
-                WHERE id = ?6;
+                    seriesid = ?5,
+                    color = ?6
+                WHERE id = ?7;
                 ",
             params![
                 event_req.start_time.map(|t| t.timestamp()),
@@ -176,6 +179,7 @@ impl CalConnector {
                 event_req.name,
                 event_req.description,
                 event_req.series_id.map(|t| t.to_string()),
+                event_req.color,
                 event_req.id.to_string()
             ],
         )?;
@@ -210,8 +214,9 @@ impl CalConnector {
                 eventstarttime,
                 eventendtime,
                 caluserid, 
-                calendarid
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
+                calendarid,
+                color
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)",
             params![
                 new_id.to_string(),
                 series_req.name,
@@ -230,6 +235,7 @@ impl CalConnector {
                 series_req.event_end_time.num_seconds(),
                 series_req.cal_user_id.to_string(),
                 series_req.calendar_id.to_string(),
+                series_req.color.to_string(),
             ],
         )?;
 
@@ -314,6 +320,20 @@ impl CalConnector {
 
     pub fn get_events(&self) -> CalResult<Vec<Event>> {
         self.get_records::<Event>("SELECT * FROM event")
+    }
+
+    pub fn get_events_month_year(&self, year: i32, month: u32) -> CalResult<Vec<Event>> {
+        let events = self.get_records::<Event>("SELECT * FROM event")?;
+
+        let filtered = events
+            .into_iter()
+            .filter(|e| match e.start_time {
+                Some(d) => d.month() == month && d.year() == year,
+                None => false,
+            })
+            .collect::<Vec<Event>>();
+
+        Ok(filtered)
     }
 
     fn get_records<T>(&self, sql: &str) -> CalResult<Vec<T>>

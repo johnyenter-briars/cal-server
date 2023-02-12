@@ -50,20 +50,18 @@ pub async fn get_calendars_for_user(
     let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
     let connector = state.cal_connector.lock().unwrap();
 
-    let calendars_res = connector.get_calendars();
-
-    let calendars = match calendars_res {
+    let calendars = match connector.get_calendars() {
         Ok(c) => c,
         Err(message) => return CalendarsResponse::error(message.to_string()),
     };
 
-    let cals_for_user = calendars
+    let calendars_for_user = calendars
         .into_iter()
         .filter(|c| c.cal_user_id == id)
         .collect::<Vec<Calendar>>();
 
-    match cals_for_user.len() {
+    match calendars_for_user.len() {
         0 => CalendarsResponse::not_found(),
-        _ => CalendarsResponse::ok(cals_for_user),
+        _ => CalendarsResponse::ok(calendars_for_user),
     }
 }
