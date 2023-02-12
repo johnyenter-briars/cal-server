@@ -104,7 +104,7 @@ impl CalConnector {
     pub fn create_event(&self, event_req: CreateEventRequest, id: Option<Uuid>) -> CalResult<Uuid> {
         let color = match event_req.series_id {
             Some(id) => self.get_series(id)?.unwrap().color,
-            None => "red".to_string(),
+            None => event_req.color.unwrap_or("red".to_string()),
         };
 
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
@@ -169,8 +169,9 @@ impl CalConnector {
                     endtime = ?2,
                     name = ?3,
                     description = ?4,
-                    seriesid = ?5
-                WHERE id = ?6;
+                    seriesid = ?5,
+                    color = ?6
+                WHERE id = ?7;
                 ",
             params![
                 event_req.start_time.map(|t| t.timestamp()),
@@ -178,6 +179,7 @@ impl CalConnector {
                 event_req.name,
                 event_req.description,
                 event_req.series_id.map(|t| t.to_string()),
+                event_req.color,
                 event_req.id.to_string()
             ],
         )?;
