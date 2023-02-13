@@ -9,3 +9,4 @@ run.sh
 *.err
 git-sim_media/
 release
+.procnum
