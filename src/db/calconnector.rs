@@ -1,7 +1,12 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{calendar::Calendar, caluser::CalUser, event::{Event, self}, series::Series},
+        cal::{
+            calendar::Calendar,
+            caluser::CalUser,
+            event::{self, Event},
+            series::Series,
+        },
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
             createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
@@ -281,12 +286,18 @@ impl CalConnector {
             .filter(|s| s.calendar_id == id)
             .collect::<Vec<Series>>();
 
+        let events_in_calendar = self
+            .get_events()?
+            .into_iter()
+            .filter(|e| e.calendar_id == id)
+            .collect::<Vec<Event>>();
+
         for s in series_in_calendar {
             let _ = self.delete_series(s.id)?;
         }
 
-        for e in self.get_events()? {
-            let _ = self.delete_event(e.id)?;
+        for e in events_in_calendar {
+            let _ = self.delete_entity(e.id, "event")?;
         }
 
         self.delete_entity(id, "calendar")
@@ -304,14 +315,10 @@ impl CalConnector {
 
         for sub_event in sub_events {
             //I really hope nothing bad goes wrong here : /
-            let _ = self.delete_event(sub_event.id);
+            let _ = self.delete_entity(sub_event.id, "event")?;
         }
 
         self.delete_entity(id, "series")
-    }
-
-    pub fn delete_event(&self, id: Uuid) -> CalResult<Option<Uuid>> {
-        self.delete_entity(id, "event")
     }
 
     pub fn delete_entity(&self, id: Uuid, entity: &str) -> CalResult<Option<Uuid>> {

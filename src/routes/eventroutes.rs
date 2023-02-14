@@ -88,7 +88,7 @@ pub async fn get_events_of_month(params: web::Path<(i32, u32)>, state: web::Data
 pub async fn delete_event(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
     let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
 
-    match state.cal_connector.lock().unwrap().delete_event(id) {
+    match state.cal_connector.lock().unwrap().delete_entity(id, "event") {
         Ok(option) => match option {
             Some(id) => DeletedEntityResponse::ok(id),
             None => DeletedEntityResponse::bad_request("No entity found with that Id".to_string()),
