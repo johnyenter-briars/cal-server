@@ -1,12 +1,7 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{
-            calendar::Calendar,
-            caluser::CalUser,
-            event::{self, Event},
-            series::Series,
-        },
+        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
             createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
@@ -109,7 +104,7 @@ impl CalConnector {
     pub fn create_event(&self, event_req: CreateEventRequest, id: Option<Uuid>) -> CalResult<Uuid> {
         let color = match event_req.series_id {
             Some(id) => self.get_series(id)?.unwrap().color,
-            None => event_req.color.unwrap_or("red".to_string()),
+            None => event_req.color.unwrap_or_else(|| "red".to_string()),
         };
 
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
