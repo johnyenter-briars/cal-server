@@ -49,6 +49,8 @@ pub async fn update_event(
             series_id: update_event_req.series_id,
             calendar_id: update_event_req.calendar_id,
             color: update_event_req.color.clone(),
+            num_times_notified: update_event_req.num_times_notified,
+            should_notify: update_event_req.should_notify,
         };
 
         return create_event_base(create_event_req, &cal_connector);

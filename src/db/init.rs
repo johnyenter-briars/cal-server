@@ -99,6 +99,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: work_calendar_id,
             color: Some("Purple".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -113,6 +115,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: work_calendar_id,
             color: Some("Purple".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -127,6 +131,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: work_calendar_id,
             color: Some("Pink".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -141,6 +147,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: work_calendar_id,
             color: Some("Pink".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -155,6 +163,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: work_calendar_id,
             color: Some("Yellow".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -169,6 +179,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: work_calendar_id,
             color: Some("Yellow".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -184,6 +196,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: bday_calendar_id,
             color: Some("Pink".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -207,6 +221,8 @@ fn add_test_data(
         cal_user_id: user_id,
         calendar_id: bday_calendar_id,
         color: "Blue".to_string(),
+            num_times_notified: 0,
+            should_notify: true,
     }, None)?;
 
     //create two events for it
@@ -220,6 +236,8 @@ fn add_test_data(
             series_id: Some(series_id),
             calendar_id: bday_calendar_id,
             color: Some("Green".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -234,6 +252,8 @@ fn add_test_data(
             series_id: Some(series_id),
             calendar_id: bday_calendar_id,
             color: Some("Purple".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -249,6 +269,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: bday_calendar_id,
             color: Some("Orange".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -264,6 +286,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: bday_calendar_id,
             color: Some("Green".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -278,6 +302,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: bday_calendar_id,
             color: Some("Pink".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;
@@ -292,6 +318,8 @@ fn add_test_data(
             series_id: None,
             calendar_id: bday_calendar_id,
             color: Some("Purple".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
         },
         None,
     )?;

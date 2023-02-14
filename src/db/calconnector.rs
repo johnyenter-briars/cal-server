@@ -1,7 +1,7 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
+        cal::{calendar::Calendar, caluser::CalUser, event::{Event, self}, series::Series},
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
             createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
@@ -111,7 +111,7 @@ impl CalConnector {
         let conn = Connection::open(&self.path_to_db)?;
 
         conn.execute(
-            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid, color) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            "INSERT INTO event (id, starttime, endtime, name, description, caluserid, seriesid, calendarid, color, numtimesnotified, shouldnotify) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
             params![
                 new_id.to_string(),
                 event_req.start_time.map(|t| t.timestamp()),
@@ -122,6 +122,8 @@ impl CalConnector {
                 event_req.series_id.map(|t| t.to_string()),
                 event_req.calendar_id.to_string(),
                 color,
+                event_req.num_times_notified,
+                event_req.should_notify
             ],
         )?;
 
@@ -170,8 +172,10 @@ impl CalConnector {
                     name = ?3,
                     description = ?4,
                     seriesid = ?5,
-                    color = ?6
-                WHERE id = ?7;
+                    color = ?6,
+                    numtimesnotified = ?7,
+                    shouldnotify = ?8
+                WHERE id = ?9;
                 ",
             params![
                 event_req.start_time.map(|t| t.timestamp()),
@@ -180,6 +184,8 @@ impl CalConnector {
                 event_req.description,
                 event_req.series_id.map(|t| t.to_string()),
                 event_req.color,
+                event_req.num_times_notified,
+                event_req.should_notify,
                 event_req.id.to_string()
             ],
         )?;
@@ -215,8 +221,10 @@ impl CalConnector {
                 eventendtime,
                 caluserid, 
                 calendarid,
-                color
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)",
+                color,
+                numtimesnotified,
+                shouldnotify
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)",
             params![
                 new_id.to_string(),
                 series_req.name,
@@ -236,6 +244,8 @@ impl CalConnector {
                 series_req.cal_user_id.to_string(),
                 series_req.calendar_id.to_string(),
                 series_req.color.to_string(),
+                series_req.num_times_notified,
+                series_req.should_notify,
             ],
         )?;
 

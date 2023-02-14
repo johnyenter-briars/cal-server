@@ -30,6 +30,8 @@ pub struct Series {
     pub cal_user_id: Uuid,
     pub calendar_id: Uuid,
     pub color: String,
+    pub num_times_notified: i32,
+    pub should_notify: bool,
 }
 
 impl ConstructableFromSql<Series> for Series {
@@ -65,7 +67,9 @@ impl ConstructableFromSql<Series> for Series {
             event_end_time: Duration::seconds(row.get::<usize, i64>(14)?),
             cal_user_id: Uuid::parse_str(&row.get::<usize, String>(15)?)?,
             calendar_id: Uuid::parse_str(&row.get::<usize, String>(16)?)?,
-            color: row.get(17)?
+            color: row.get(17)?,
+            num_times_notified: row.get(18)?,
+            should_notify: row.get(9)?,
         })
     }
 }

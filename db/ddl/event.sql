@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS event (
     seriesid TEXT,
     calendarid TEXT NOT NULL,
     color TEXT NOT NULL,
+    numtimesnotified INTEGER NOT NULL,
+    shouldnotify BOOLEAN NOT NULL,
 
     FOREIGN KEY (caluserid) REFERENCES caluser(id),
     FOREIGN KEY (seriesid) REFERENCES series(id)
