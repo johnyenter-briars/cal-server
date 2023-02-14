@@ -26,4 +26,6 @@ pub struct CreateSeriesRequest {
     pub cal_user_id: Uuid,
     pub calendar_id: Uuid,
     pub color: String,
+    pub num_times_notified: i32,
+    pub should_notify: bool,
 }
