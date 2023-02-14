@@ -1,7 +1,7 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{calendar::Calendar, caluser::CalUser, event::{Event, self}, series::Series},
+        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
             createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
@@ -104,7 +104,7 @@ impl CalConnector {
     pub fn create_event(&self, event_req: CreateEventRequest, id: Option<Uuid>) -> CalResult<Uuid> {
         let color = match event_req.series_id {
             Some(id) => self.get_series(id)?.unwrap().color,
-            None => event_req.color.unwrap_or("red".to_string()),
+            None => event_req.color.unwrap_or_else(|| "red".to_string()),
         };
 
         let new_id = id.unwrap_or_else(CalConnector::generate_random_id);
@@ -281,12 +281,18 @@ impl CalConnector {
             .filter(|s| s.calendar_id == id)
             .collect::<Vec<Series>>();
 
+        let events_in_calendar = self
+            .get_events()?
+            .into_iter()
+            .filter(|e| e.calendar_id == id)
+            .collect::<Vec<Event>>();
+
         for s in series_in_calendar {
             let _ = self.delete_series(s.id)?;
         }
 
-        for e in self.get_events()? {
-            let _ = self.delete_event(e.id)?;
+        for e in events_in_calendar {
+            let _ = self.delete_entity(e.id, "event")?;
         }
 
         self.delete_entity(id, "calendar")
@@ -304,14 +310,10 @@ impl CalConnector {
 
         for sub_event in sub_events {
             //I really hope nothing bad goes wrong here : /
-            let _ = self.delete_event(sub_event.id);
+            let _ = self.delete_entity(sub_event.id, "event")?;
         }
 
         self.delete_entity(id, "series")
-    }
-
-    pub fn delete_event(&self, id: Uuid) -> CalResult<Option<Uuid>> {
-        self.delete_entity(id, "event")
     }
 
     pub fn delete_entity(&self, id: Uuid, entity: &str) -> CalResult<Option<Uuid>> {
