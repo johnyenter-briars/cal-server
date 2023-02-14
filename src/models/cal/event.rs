@@ -17,6 +17,8 @@ pub struct Event {
     pub series_id: Option<Uuid>,
     pub calendar_id: Uuid,
     pub color: String,
+    pub num_times_notified: i32,
+    pub should_notify: bool,
 }
 
 impl ConstructableFromSql<Event> for Event {
@@ -49,6 +51,8 @@ impl ConstructableFromSql<Event> for Event {
             },
             calendar_id: Uuid::parse_str(&row.get::<usize, String>(7)?)?,
             color: row.get(8)?,
+            num_times_notified: row.get(9)?,
+            should_notify: row.get(10)?,
         })
     }
 }

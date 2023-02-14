@@ -16,5 +16,7 @@ CREATE TABLE IF NOT EXISTS series (
     eventendtime INTEGER,
     caluserid TEXT NOT NULL,
     calendarid TEXT NOT NULL,
-    color TEXT NOT NULL
+    color TEXT NOT NULL,
+    numtimesnotified INTEGER NOT NULL,
+    shouldnotify BOOLEAN NOT NULL
 )

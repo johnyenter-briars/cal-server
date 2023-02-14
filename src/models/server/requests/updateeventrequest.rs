@@ -16,6 +16,8 @@ pub struct UpdateEventRequest {
     pub series_id: Option<Uuid>,
     pub calendar_id: Uuid,
     pub color: Option<String>,
+    pub num_times_notified: i32,
+    pub should_notify: bool,
 }
 
 impl Validatable for UpdateEventRequest {
