@@ -475,7 +475,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": \"bd21883d-ec69-4323-98c1-bf6b790e905b\",\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"booga booga 222\",\n    \"description\": \"bro whatafaslgjashlkgj\",\n    \"startTime\": \"2022-05-28T13:45:30.0000000Z\",\n    \"endTime\": \"2022-05-28T14:45:30.0000000Z\",\n    \"seriesId\": null,\n    \"calendarId\": \"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac\"\n}",
+									"raw": "{\n    \"id\": \"ff2492a3-9ddf-460d-adb1-a497ccd7a307\",\n    \"startTime\": \"2023-02-15T04:28:03Z\",\n    \"endTime\": \"2023-02-15T05:28:03Z\",\n    \"name\": \"tomorrows event\",\n    \"description\": \"some description here\",\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"seriesId\": null,\n    \"calendarId\": \"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac\",\n    \"color\": \"Green\",\n    \"numTimesNotified\": 0,\n    \"shouldNotify\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -483,13 +483,15 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8000/api/event",
+									"raw": "http://johnyenterbriars.com:8001/cal/api/event",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"johnyenterbriars",
+										"com"
 									],
-									"port": "8000",
+									"port": "8001",
 									"path": [
+										"cal",
 										"api",
 										"event"
 									]
@@ -602,13 +604,14 @@
 									}
 								],
 								"url": {
-									"raw": "http://localhost:8000/api/event",
+									"raw": "http://{{host-name}}:{{port}}/cal/api/event",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host-name}}"
 									],
-									"port": "8000",
+									"port": "{{port}}",
 									"path": [
+										"cal",
 										"api",
 										"event"
 									]
@@ -680,7 +683,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": \"bd21883d-ec69-4323-98c1-bf6b790e905b\",\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"booga booga 222\",\n    \"description\": \"bro whatafaslgjashlkgj\",\n    \"startTime\": \"2022-05-28T13:45:30.0000000Z\",\n    \"endTime\": \"2022-05-28T14:45:30.0000000Z\",\n    \"seriesId\": null\n}",
+									"raw": "{\n    \"id\": \"8a6185b9-8cab-4ddf-813c-c2d195f64096\",\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"Personal\",\n    \"description\": null,\n    \"color\": \"#5D3FD3\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -688,15 +691,17 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8000/api/event",
+									"raw": "http://johnyenterbriars.com:8001/cal/api/calendar",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"johnyenterbriars",
+										"com"
 									],
-									"port": "8000",
+									"port": "8001",
 									"path": [
+										"cal",
 										"api",
-										"event"
+										"calendar"
 									]
 								}
 							},
@@ -728,7 +733,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"test from postman\",\n    \"description\": null\n}",
+									"raw": "{\n    \"calUserId\": \"a188e597-29f9-4e2f-aa46-e3713d9939da\",\n    \"name\": \"Personal\",\n    \"description\": null,\n    \"color\": \"#5D3FD3\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -736,13 +741,15 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8000/api/calendar",
+									"raw": "http://johnyenterbriars.com:8001/cal/api/calendar",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"johnyenterbriars",
+										"com"
 									],
-									"port": "8000",
+									"port": "8001",
 									"path": [
+										"cal",
 										"api",
 										"calendar"
 									]
@@ -784,16 +791,17 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8000/api/calendar/aebb3df3-d1fa-4f21-af2f-a98d0774f3ac",
+									"raw": "http://{{host-name}}:{{port}}/cal/api/calendar/30050d56-997f-40ec-be62-b4930779b07d",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host-name}}"
 									],
-									"port": "8000",
+									"port": "{{port}}",
 									"path": [
+										"cal",
 										"api",
 										"calendar",
-										"aebb3df3-d1fa-4f21-af2f-a98d0774f3ac"
+										"30050d56-997f-40ec-be62-b4930779b07d"
 									]
 								}
 							},
@@ -816,13 +824,14 @@
 									}
 								],
 								"url": {
-									"raw": "http://localhost:8000/api/calendar/user/a188e597-29f9-4e2f-aa46-e3713d9939da",
+									"raw": "http://{{host-name}}:{{port}}/cal/api/calendar/user/a188e597-29f9-4e2f-aa46-e3713d9939da",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host-name}}"
 									],
-									"port": "8000",
+									"port": "{{port}}",
 									"path": [
+										"cal",
 										"api",
 										"calendar",
 										"user",
