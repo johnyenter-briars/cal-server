@@ -1,6 +1,7 @@
 use crate::{
     db::calconnector::CalConnector,
     models::{
+        cal::event::Event,
         server::{
             requests::{
                 createeventrequest::CreateEventRequest, updateeventrequest::UpdateEventRequest,
@@ -16,6 +17,7 @@ use crate::{
     server::httpserver::AppState,
 };
 use actix_web::{delete, get, post, put, web, HttpResponse};
+use itertools::Itertools;
 use uuid::Uuid;
 
 #[post("/api/event")]
@@ -76,9 +78,61 @@ pub async fn get_events(state: web::Data<AppState>) -> HttpResponse {
     }
 }
 
+#[get("/api/event/{name}")]
+pub async fn get_event_via_name(
+    name: web::Path<String>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    match state
+        .cal_connector
+        .lock()
+        .unwrap()
+        .get_events_via_name(name.to_string())
+    {
+        Ok(events) => EventsResponse::ok(events),
+        Err(e) => EventsResponse::error(e.to_string()),
+    }
+}
+
+#[get("/api/event/page/{page}")]
+pub async fn get_event_page(page: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
+    match state.cal_connector.lock().unwrap().get_events() {
+        Ok(events) => {
+            let chunked_items: Vec<Vec<Event>> = events
+                .into_iter()
+                .chunks(20)
+                .into_iter()
+                .map(|chunk| chunk.collect())
+                .collect();
+
+            let p_test = page.parse::<usize>();
+
+            println!("data: {:?}", p_test);
+
+            let p: usize = p_test.unwrap();
+
+            if p >= chunked_items.len() {
+                return EventsResponse::ok(vec![])
+            }
+
+            let foo = chunked_items[p].clone();
+            EventsResponse::ok(foo)
+        }
+        Err(e) => EventsResponse::error(e.to_string()),
+    }
+}
+
 #[get("/api/event/{year}/{month}")]
-pub async fn get_events_of_month(params: web::Path<(i32, u32)>, state: web::Data<AppState>) -> HttpResponse {
-    match state.cal_connector.lock().unwrap().get_events_month_year(params.0, params.1) {
+pub async fn get_events_of_month(
+    params: web::Path<(i32, u32)>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    match state
+        .cal_connector
+        .lock()
+        .unwrap()
+        .get_events_month_year(params.0, params.1)
+    {
         Ok(events) => EventsResponse::ok(events),
         Err(e) => EventsResponse::error(e.to_string()),
     }
@@ -88,7 +142,12 @@ pub async fn get_events_of_month(params: web::Path<(i32, u32)>, state: web::Data
 pub async fn delete_event(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
     let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
 
-    match state.cal_connector.lock().unwrap().delete_entity(id, "event") {
+    match state
+        .cal_connector
+        .lock()
+        .unwrap()
+        .delete_entity(id, "event")
+    {
         Ok(option) => match option {
             Some(id) => DeletedEntityResponse::ok(id),
             None => DeletedEntityResponse::bad_request("No entity found with that Id".to_string()),
