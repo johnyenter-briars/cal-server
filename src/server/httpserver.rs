@@ -6,7 +6,7 @@ use crate::{
         adminroutes::{list_database_saves, load_database_version, save_database},
         calendarroutes::{create_calendar, delete_calendar, get_calendars_for_user},
         caluserroutes::{create_caluser, get_caluser},
-        eventroutes::{create_event, delete_event, get_events, get_events_of_month, update_event},
+        eventroutes::{create_event, delete_event, get_events, get_events_of_month, update_event, get_event_via_name, get_event_page},
         seriesroutes::{create_series, delete_series, get_all_series, get_series},
     },
 };
@@ -36,6 +36,8 @@ pub async fn build_and_run_server(
             web::scope("/cal")
                 .service(create_event)
                 .service(get_events)
+                .service(get_event_via_name)
+                .service(get_event_page)
                 .service(create_caluser)
                 .service(update_event)
                 .service(get_caluser)

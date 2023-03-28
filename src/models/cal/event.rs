@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::{models::traits::construct::ConstructableFromSql, CalResult};
 
 #[derive(Debug, Serialize)]
+#[derive(Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Event {
     pub id: Uuid,
