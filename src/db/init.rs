@@ -3,14 +3,17 @@ use std::{
     io::{ErrorKind, Read},
 };
 
-use crate::{models::server::requests::{
-    createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
-    createseriesrequest::CreateSeriesRequest,
-}, CalResult};
+use crate::{
+    models::server::requests::{
+        createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
+        createseriesrequest::CreateSeriesRequest,
+    },
+    CalResult,
+};
 
 use super::{calconnector::CalConnector, DB_FOLDER_PATH, DB_INITIAL_NAME};
 use chrono::{Duration, Utc};
-use rusqlite::{Connection};
+use rusqlite::Connection;
 use uuid::Uuid;
 
 pub fn initiaize_db(
@@ -62,11 +65,7 @@ fn delete_database() -> CalResult<()> {
     }
 }
 
-fn add_test_data(
-    user_id: Uuid,
-    api_key: &str,
-    conn: &CalConnector,
-) -> CalResult<()> {
+fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult<()> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
 
     let bday_calendar_id = conn.create_calendar(
@@ -89,6 +88,23 @@ fn add_test_data(
         None,
     )?;
 
+    for e in 0..2 {
+        conn.create_event(
+            CreateEventRequest {
+                name: format!("event: {}", e).to_string(),
+                description: Some("some description here".to_string()),
+                start_time: Some(Utc::now() + Duration::minutes(7)),
+                end_time: Some(Utc::now() + Duration::hours(1)),
+                cal_user_id: user_id,
+                series_id: None,
+                calendar_id: work_calendar_id,
+                color: Some("Purple".to_string()),
+                num_times_notified: 0,
+                should_notify: true,
+            },
+            None,
+        )?;
+    }
     conn.create_event(
         CreateEventRequest {
             name: "This event should notify".to_string(),
@@ -120,7 +136,7 @@ fn add_test_data(
         },
         None,
     )?;
-    
+
     conn.create_event(
         CreateEventRequest {
             name: "work event 2".to_string(),
@@ -203,27 +219,30 @@ fn add_test_data(
     )?;
 
     //create the series
-    let series_id = conn.create_series(CreateSeriesRequest {
-        name: "series test".to_string(),
-        description: Some("i literally dk".to_string()),
-        repeat_every_week: 1,
-        repeat_on_mon: true,
-        repeat_on_tues: false,
-        repeat_on_wed: true,
-        repeat_on_thurs: false,
-        repeat_on_fri: false,
-        repeat_on_sat: false,
-        repeat_on_sun: false,
-        starts_on: Utc::now(),
-        ends_on: Utc::now() + Duration::days(1),
-        event_start_time: chrono::Duration::seconds(1000),
-        event_end_time: chrono::Duration::seconds(1000),
-        cal_user_id: user_id,
-        calendar_id: bday_calendar_id,
-        color: "Blue".to_string(),
+    let series_id = conn.create_series(
+        CreateSeriesRequest {
+            name: "series test".to_string(),
+            description: Some("i literally dk".to_string()),
+            repeat_every_week: 1,
+            repeat_on_mon: true,
+            repeat_on_tues: false,
+            repeat_on_wed: true,
+            repeat_on_thurs: false,
+            repeat_on_fri: false,
+            repeat_on_sat: false,
+            repeat_on_sun: false,
+            starts_on: Utc::now(),
+            ends_on: Utc::now() + Duration::days(1),
+            event_start_time: chrono::Duration::seconds(1000),
+            event_end_time: chrono::Duration::seconds(1000),
+            cal_user_id: user_id,
+            calendar_id: bday_calendar_id,
+            color: "Blue".to_string(),
             num_times_notified: 0,
             should_notify: true,
-    }, None)?;
+        },
+        None,
+    )?;
 
     //create two events for it
     conn.create_event(
@@ -291,7 +310,7 @@ fn add_test_data(
         },
         None,
     )?;
-    
+
     conn.create_event(
         CreateEventRequest {
             name: "this should be in match".to_string(),
