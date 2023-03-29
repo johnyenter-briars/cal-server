@@ -334,6 +334,10 @@ impl CalConnector {
         self.get_records::<Event>("SELECT * FROM event")
     }
 
+    pub fn get_events_via_name(&self, name: String) -> CalResult<Vec<Event>> {
+        self.get_records::<Event>(&format!("SELECT * FROM event where name LIKE '%{}%'", name))
+    }
+
     pub fn get_events_month_year(&self, year: i32, month: u32) -> CalResult<Vec<Event>> {
         let events = self.get_records::<Event>("SELECT * FROM event")?;
 
