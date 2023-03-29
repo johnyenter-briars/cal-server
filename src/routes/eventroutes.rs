@@ -105,18 +105,13 @@ pub async fn get_event_page(page: web::Path<String>, state: web::Data<AppState>)
                 .map(|chunk| chunk.collect())
                 .collect();
 
-            let p_test = page.parse::<usize>();
-
-            println!("data: {:?}", p_test);
-
-            let p: usize = p_test.unwrap();
+            let p: usize = page.parse::<usize>().unwrap();
 
             if p >= chunked_items.len() {
-                return EventsResponse::ok(vec![])
+                return EventsResponse::ok(vec![]);
             }
 
-            let foo = chunked_items[p].clone();
-            EventsResponse::ok(foo)
+            EventsResponse::ok(chunked_items[p].clone())
         }
         Err(e) => EventsResponse::error(e.to_string()),
     }
