@@ -1,10 +1,9 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series},
+        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series, sharedcalendar::SharedCalendar},
         server::requests::{
-            createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
-            createseriesrequest::CreateSeriesRequest, updateeventrequest::UpdateEventRequest,
+            createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest, createsharedcalendarrequest::CreateSharedCalendarRequest, updateeventrequest::UpdateEventRequest
         },
         traits::construct::ConstructableFromSql,
     },
@@ -152,6 +151,43 @@ impl CalConnector {
         Ok(new_id)
     }
 
+    pub fn create_shared_calendar(
+        &self,
+        calendar_req: CreateSharedCalendarRequest,
+        id: Option<Uuid>,
+    ) -> CalResult<Uuid> {
+        let conn = Connection::open(&self.path_to_db)?;
+
+        let base_calendar_id  = id.unwrap_or_else(CalConnector::generate_random_id);
+
+        conn.execute(
+            "INSERT INTO calendar (id, name, description, caluserid, color) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![
+                base_calendar_id.to_string(),
+                calendar_req.name,
+                calendar_req.description,
+                calendar_req.owner_cal_user_id.to_string(),
+                calendar_req.color.to_string(),
+            ],
+        )?;
+
+        for cal_user_id in calendar_req.cal_users {
+            let shared_calendar_id = CalConnector::generate_random_id();
+            conn.execute(
+                "INSERT INTO sharedcalendar (id, calendarid, ownercaluserid, caluserid) VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    shared_calendar_id.to_string(),
+                    base_calendar_id.to_string(),
+                    calendar_req.owner_cal_user_id.to_string(),
+                    cal_user_id.to_string(),
+                ],
+            )?;
+
+        }
+
+        Ok(base_calendar_id)
+    }
+
     pub fn update_event(&self, event_req: UpdateEventRequest) -> CalResult<Uuid> {
         if (event_req.start_time.is_none() && event_req.end_time.is_some())
             || (event_req.start_time.is_some() && event_req.end_time.is_none())
@@ -270,8 +306,22 @@ impl CalConnector {
         self.get_records::<Series>("SELECT * FROM series")
     }
 
-    pub fn get_calendars(&self) -> CalResult<Vec<Calendar>> {
-        self.get_records::<Calendar>("SELECT * FROM calendar")
+    pub fn get_calendars_for_user(&self, cal_user_id: Uuid) -> CalResult<Vec<Calendar>> {
+        let calendars = self.get_records::<Calendar>("SELECT * FROM calendar")?;
+        let shared_calendars  = self.get_records::<SharedCalendar>("SELECT * FROM sharedcalendar")?;
+
+        let shared_calendar_ids_the_user_is_in = shared_calendars
+            .into_iter()
+            .filter(|c| c.cal_user_id == cal_user_id)
+            .map(|c| c.calendar_id)
+            .collect::<Vec<Uuid>>();
+
+        let calendars_for_user = calendars
+            .into_iter()
+            .filter(|c| c.cal_user_id == cal_user_id || shared_calendar_ids_the_user_is_in.contains(&c.id))
+            .collect::<Vec<Calendar>>();
+
+        Ok(calendars_for_user)
     }
 
     pub fn delete_calendar(&self, id: Uuid) -> CalResult<Option<Uuid>> {

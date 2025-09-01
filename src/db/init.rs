@@ -6,7 +6,7 @@ use std::{
 use crate::{
     models::server::requests::{
         createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
-        createseriesrequest::CreateSeriesRequest,
+        createseriesrequest::CreateSeriesRequest, createsharedcalendarrequest::CreateSharedCalendarRequest,
     },
     CalResult,
 };
@@ -33,6 +33,8 @@ pub fn initiaize_db(
     raw_conn.execute(&get_sql_file_contents("event")?, [])?;
 
     raw_conn.execute(&get_sql_file_contents("calendar")?, [])?;
+
+    raw_conn.execute(&get_sql_file_contents("sharedcalendar")?, [])?;
 
     drop(raw_conn);
 
@@ -67,6 +69,8 @@ fn delete_database() -> CalResult<()> {
 
 fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult<()> {
     conn.create_caluser("Jim", "Pankey", Some(user_id), api_key)?;
+    let second_user_id = Uuid::parse_str("b7791e67-bff0-465b-aef5-de3d3d13033e")?;
+    conn.create_caluser("Second", "User", Some(second_user_id), api_key)?;
 
     let bday_calendar_id = conn.create_calendar(
         CreateCalendarRequest {
@@ -76,6 +80,16 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
             color: "Blue".to_string(),
         },
         Some(Uuid::parse_str("aebb3df3-d1fa-4f21-af2f-a98d0774f3ac")?),
+    )?;
+
+    let second_user_bday_calendar_id = conn.create_calendar(
+        CreateCalendarRequest {
+            name: "Birthdays - second user".to_string(),
+            description: None,
+            cal_user_id: second_user_id,
+            color: "Blue".to_string(),
+        },
+        None,
     )?;
 
     let work_calendar_id = conn.create_calendar(
@@ -88,6 +102,27 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
         None,
     )?;
 
+    let second_user_work_calendar_id = conn.create_calendar(
+        CreateCalendarRequest {
+            name: "work - second user".to_string(),
+            description: None,
+            cal_user_id: second_user_id,
+            color: "Red".to_string(),
+        },
+        None,
+    )?;
+
+    let shared_calendar_id = conn.create_shared_calendar(
+        CreateSharedCalendarRequest {
+            name: "shared calendar".to_string(),
+            description: None,
+            owner_cal_user_id: user_id,
+            cal_users: vec![user_id, second_user_id],
+            color: "Red".to_string(),
+        },
+        Some(Uuid::parse_str("74dddbb0-1a3b-4426-94b1-c4d951e59a23")?),
+    )?;
+
     for e in 0..2 {
         conn.create_event(
             CreateEventRequest {
@@ -98,6 +133,38 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
                 cal_user_id: user_id,
                 series_id: None,
                 calendar_id: work_calendar_id,
+                color: Some("Purple".to_string()),
+                num_times_notified: 0,
+                should_notify: true,
+            },
+            None,
+        )?;
+
+        conn.create_event(
+            CreateEventRequest {
+                name: format!("event: {}", e).to_string(),
+                description: Some("some description here".to_string()),
+                start_time: Some(Utc::now() + Duration::minutes(7)),
+                end_time: Some(Utc::now() + Duration::hours(1)),
+                cal_user_id: user_id,
+                series_id: None,
+                calendar_id: second_user_work_calendar_id,
+                color: Some("Purple".to_string()),
+                num_times_notified: 0,
+                should_notify: true,
+            },
+            None,
+        )?;
+
+        conn.create_event(
+            CreateEventRequest {
+                name: format!("shared event: {}", e).to_string(),
+                description: Some("some description here".to_string()),
+                start_time: Some(Utc::now() + Duration::minutes(7)),
+                end_time: Some(Utc::now() + Duration::hours(1)),
+                cal_user_id: user_id,
+                series_id: None,
+                calendar_id: shared_calendar_id,
                 color: Some("Purple".to_string()),
                 num_times_notified: 0,
                 should_notify: true,
@@ -211,6 +278,22 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
             cal_user_id: user_id,
             series_id: None,
             calendar_id: bday_calendar_id,
+            color: Some("Pink".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
+        },
+        None,
+    )?;
+
+    conn.create_event(
+        CreateEventRequest {
+            name: "event idk".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now()),
+            end_time: Some(Utc::now() + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: second_user_bday_calendar_id,
             color: Some("Pink".to_string()),
             num_times_notified: 0,
             should_notify: true,

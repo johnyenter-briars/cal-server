@@ -6,6 +6,7 @@ use crate::{
         cal::calendar::Calendar,
         server::{
             requests::createcalendarrequest::CreateCalendarRequest,
+            requests::createsharedcalendarrequest::CreateSharedCalendarRequest,
             responses::{
                 calendarsresponse::CalendarsResponse,
                 createcalendarresponse::CreateCalendarResponse,
@@ -24,6 +25,19 @@ pub async fn create_calendar(
     let connector = state.cal_connector.lock().unwrap();
 
     match connector.create_calendar(calendar_req.0, None) {
+        Ok(uuid) => CreateCalendarResponse::created(uuid),
+        Err(e) => CreateCalendarResponse::error(e.to_string()),
+    }
+}
+
+#[post("/api/sharedcalendar")]
+pub async fn create_shared_calendar(
+    calendar_req: web::Json<CreateSharedCalendarRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    let connector = state.cal_connector.lock().unwrap();
+
+    match connector.create_shared_calendar(calendar_req.0, None) {
         Ok(uuid) => CreateCalendarResponse::created(uuid),
         Err(e) => CreateCalendarResponse::error(e.to_string()),
     }
@@ -50,18 +64,13 @@ pub async fn get_calendars_for_user(
     let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
     let connector = state.cal_connector.lock().unwrap();
 
-    let calendars = match connector.get_calendars() {
+    let calendars = match connector.get_calendars_for_user(id) {
         Ok(c) => c,
         Err(message) => return CalendarsResponse::error(message.to_string()),
     };
 
-    let calendars_for_user = calendars
-        .into_iter()
-        .filter(|c| c.cal_user_id == id)
-        .collect::<Vec<Calendar>>();
-
-    match calendars_for_user.len() {
+    match calendars.len() {
         0 => CalendarsResponse::not_found(),
-        _ => CalendarsResponse::ok(calendars_for_user),
+        _ => CalendarsResponse::ok(calendars),
     }
 }
