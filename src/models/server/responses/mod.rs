@@ -14,3 +14,4 @@ pub mod seriesresponse;
 pub mod updateeventresponse;
 pub mod updateseriesresponse;
 pub mod notificationsresponse;
+pub mod createnotificationresponse;

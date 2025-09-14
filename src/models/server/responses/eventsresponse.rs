@@ -22,6 +22,19 @@ impl EventsResponse {
         )
     }
 
+    pub fn not_found() -> HttpResponse {
+        HttpResponse::NotFound()
+            .content_type(ContentType::json())
+            .body(
+                EventsResponse {
+                    status_code: 400,
+                    message: "No events found for user".to_string(),
+                    events: vec![],
+                }
+                .as_serde_string(),
+            )
+    }
+
     pub fn error(message: String) -> HttpResponse {
         HttpResponse::InternalServerError()
             .content_type(ContentType::json())

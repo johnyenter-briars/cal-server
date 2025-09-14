@@ -1,7 +1,7 @@
-use actix_web::{get, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 
 use crate::{
-    models::server::responses::notificationsresponse::NotificationsResponse,
+    models::server::{requests::createnotificationrequest::CreateNotificationRequest, responses::{createnotificationresponse::CreateNotificationResponse, notificationsresponse::NotificationsResponse}},
     server::httpserver::AppState,
 };
 
@@ -17,5 +17,18 @@ pub async fn get_notifications(state: web::Data<AppState>) -> HttpResponse {
     match notifications.len() {
         0 => NotificationsResponse::not_found(),
         _ => NotificationsResponse::ok(notifications),
+    }
+}
+
+#[post("/api/notification")]
+pub async fn create_notification(
+    notification_req: web::Json<CreateNotificationRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    let connector = state.cal_connector.lock().unwrap();
+
+    match connector.create_notification(notification_req.0, None) {
+        Ok(uuid) => CreateNotificationResponse::created(uuid),
+        Err(e) => CreateNotificationResponse::error(e.to_string()),
     }
 }

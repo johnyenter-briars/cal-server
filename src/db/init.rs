@@ -448,7 +448,6 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
 
     let _ = conn.create_notification(
         CreateNotificationRequest {
-            calendar_id: work_calendar_id,
             event_id: notificaion_event_1,
             cal_user_id: user_id,
         },
