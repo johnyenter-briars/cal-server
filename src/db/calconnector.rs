@@ -2,7 +2,8 @@ use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
         cal::{
-            calendar::Calendar, caluser::CalUser, event::Event, notification::Notification, series::Series, sharedcalendar::SharedCalendar
+            calendar::Calendar, caluser::CalUser, event::Event, notification::Notification,
+            series::Series, sharedcalendar::SharedCalendar,
         },
         server::requests::{
             createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
@@ -16,7 +17,7 @@ use crate::{
     CalResult,
 };
 
-use chrono::{Datelike, Utc};
+use chrono::{DateTime, Datelike, Utc};
 use rusqlite::{params, Connection};
 use std::fs;
 use uuid::Uuid;
@@ -203,16 +204,66 @@ impl CalConnector {
         let notification_id = id.unwrap_or_else(CalConnector::generate_random_id);
 
         conn.execute(
-            "INSERT INTO notification (id, calendarid, eventid, caluserid) VALUES (?1, ?2, ?3, ?4)",
+            "INSERT INTO notification (id, eventid, caluserid) VALUES (?1, ?2, ?3)",
             params![
                 notification_id.to_string(),
-                notification_req.calendar_id.to_string(),
                 notification_req.event_id.to_string(),
                 notification_req.cal_user_id.to_string(),
             ],
         )?;
 
         Ok(notification_id)
+    }
+
+    pub fn get_upcomming_events(&self, cal_user_id: Uuid) -> CalResult<Vec<Event>> {
+        let now: DateTime<Utc> = Utc::now();
+
+        let events = self.get_events_month_year(now.year(), now.month())?;
+
+        let calendars_for_user = self
+            .get_calendars_for_user(cal_user_id)?
+            .into_iter()
+            .map(|c| c.id)
+            .collect::<Vec<Uuid>>();
+
+        let mut return_events: Vec<Event> = vec![];
+
+        let events_in_calendars = events
+            .into_iter()
+            .filter(|e| calendars_for_user.contains(&e.calendar_id));
+
+        for e in events_in_calendars {
+            // Only consider events happening today
+            if let Some(start) = e.start_time {
+                if now.date_naive() != start.date_naive() || !e.should_notify {
+                    continue;
+                }
+
+                let num_events = self.get_notifications_for_event(e.id, cal_user_id)?;
+
+                //TODO: magic number
+                if num_events.len() >= 3 {
+                    continue;
+                }
+
+                let span = start - now;
+
+                // future-only checks
+                let minutes = span.num_minutes();
+
+                // 16–30 minute window
+                if (16..=30).contains(&minutes) {
+                    return_events.push(e.clone());
+                }
+
+                // 0–15 minute window
+                if (0..=15).contains(&minutes) {
+                    return_events.push(e.clone());
+                }
+            }
+        }
+
+        Ok(return_events)
     }
 
     pub fn update_event(&self, event_req: UpdateEventRequest) -> CalResult<Uuid> {
@@ -335,6 +386,14 @@ impl CalConnector {
 
     pub fn get_all_notifications(&self) -> CalResult<Vec<Notification>> {
         self.get_records::<Notification>("SELECT * FROM notification")
+    }
+
+    pub fn get_notifications_for_event(
+        &self,
+        event_id: Uuid,
+        cal_user_id: Uuid,
+    ) -> CalResult<Vec<Notification>> {
+        self.get_records::<Notification>(&format!("SELECT * FROM notification where eventid = '{event_id}' and caluserid = '{cal_user_id}'"))
     }
 
     pub fn get_calendars_for_user(&self, cal_user_id: Uuid) -> CalResult<Vec<Calendar>> {
