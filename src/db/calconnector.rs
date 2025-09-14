@@ -1,16 +1,23 @@
 use super::{DB_FOLDER_PATH, DB_INITIAL_NAME};
 use crate::{
     models::{
-        cal::{calendar::Calendar, caluser::CalUser, event::Event, series::Series, sharedcalendar::SharedCalendar},
+        cal::{
+            calendar::Calendar, caluser::CalUser, event::Event, notification::Notification,
+            series::Series, sharedcalendar::SharedCalendar,
+        },
         server::requests::{
-            createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest, createseriesrequest::CreateSeriesRequest, createsharedcalendarrequest::CreateSharedCalendarRequest, updateeventrequest::UpdateEventRequest
+            createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
+            createnotificationrequest::CreateNotificationRequest,
+            createseriesrequest::CreateSeriesRequest,
+            createsharedcalendarrequest::CreateSharedCalendarRequest,
+            updateeventrequest::UpdateEventRequest,
         },
         traits::construct::ConstructableFromSql,
     },
     CalResult,
 };
 
-use chrono::{Datelike, Utc};
+use chrono::{DateTime, Datelike, Utc};
 use rusqlite::{params, Connection};
 use std::fs;
 use uuid::Uuid;
@@ -158,7 +165,7 @@ impl CalConnector {
     ) -> CalResult<Uuid> {
         let conn = Connection::open(&self.path_to_db)?;
 
-        let base_calendar_id  = id.unwrap_or_else(CalConnector::generate_random_id);
+        let base_calendar_id = id.unwrap_or_else(CalConnector::generate_random_id);
 
         conn.execute(
             "INSERT INTO calendar (id, name, description, caluserid, color) VALUES (?1, ?2, ?3, ?4, ?5)",
@@ -182,10 +189,81 @@ impl CalConnector {
                     cal_user_id.to_string(),
                 ],
             )?;
-
         }
 
         Ok(base_calendar_id)
+    }
+
+    pub fn create_notification(
+        &self,
+        notification_req: CreateNotificationRequest,
+        id: Option<Uuid>,
+    ) -> CalResult<Uuid> {
+        let conn = Connection::open(&self.path_to_db)?;
+
+        let notification_id = id.unwrap_or_else(CalConnector::generate_random_id);
+
+        conn.execute(
+            "INSERT INTO notification (id, eventid, caluserid) VALUES (?1, ?2, ?3)",
+            params![
+                notification_id.to_string(),
+                notification_req.event_id.to_string(),
+                notification_req.cal_user_id.to_string(),
+            ],
+        )?;
+
+        Ok(notification_id)
+    }
+
+    pub fn get_upcomming_events(&self, cal_user_id: Uuid) -> CalResult<Vec<Event>> {
+        let now: DateTime<Utc> = Utc::now();
+
+        let events = self.get_events_month_year(now.year(), now.month())?;
+
+        let calendars_for_user = self
+            .get_calendars_for_user(cal_user_id)?
+            .into_iter()
+            .map(|c| c.id)
+            .collect::<Vec<Uuid>>();
+
+        let mut return_events: Vec<Event> = vec![];
+
+        let events_in_calendars = events
+            .into_iter()
+            .filter(|e| calendars_for_user.contains(&e.calendar_id));
+
+        for e in events_in_calendars {
+            // Only consider events happening today
+            if let Some(start) = e.start_time {
+                if now.date_naive() != start.date_naive() || !e.should_notify {
+                    continue;
+                }
+
+                let num_events = self.get_notifications_for_event(e.id, cal_user_id)?;
+
+                //TODO: magic number
+                if num_events.len() >= 3 {
+                    continue;
+                }
+
+                let span = start - now;
+
+                // future-only checks
+                let minutes = span.num_minutes();
+
+                // 16–30 minute window
+                if (16..=30).contains(&minutes) {
+                    return_events.push(e.clone());
+                }
+
+                // 0–15 minute window
+                if (0..=15).contains(&minutes) {
+                    return_events.push(e.clone());
+                }
+            }
+        }
+
+        Ok(return_events)
     }
 
     pub fn update_event(&self, event_req: UpdateEventRequest) -> CalResult<Uuid> {
@@ -306,9 +384,22 @@ impl CalConnector {
         self.get_records::<Series>("SELECT * FROM series")
     }
 
+    pub fn get_all_notifications(&self) -> CalResult<Vec<Notification>> {
+        self.get_records::<Notification>("SELECT * FROM notification")
+    }
+
+    pub fn get_notifications_for_event(
+        &self,
+        event_id: Uuid,
+        cal_user_id: Uuid,
+    ) -> CalResult<Vec<Notification>> {
+        self.get_records::<Notification>(&format!("SELECT * FROM notification where eventid = '{event_id}' and caluserid = '{cal_user_id}'"))
+    }
+
     pub fn get_calendars_for_user(&self, cal_user_id: Uuid) -> CalResult<Vec<Calendar>> {
         let calendars = self.get_records::<Calendar>("SELECT * FROM calendar")?;
-        let shared_calendars  = self.get_records::<SharedCalendar>("SELECT * FROM sharedcalendar")?;
+        let shared_calendars =
+            self.get_records::<SharedCalendar>("SELECT * FROM sharedcalendar")?;
 
         let shared_calendar_ids_the_user_is_in = shared_calendars
             .into_iter()
@@ -318,7 +409,9 @@ impl CalConnector {
 
         let calendars_for_user = calendars
             .into_iter()
-            .filter(|c| c.cal_user_id == cal_user_id || shared_calendar_ids_the_user_is_in.contains(&c.id))
+            .filter(|c| {
+                c.cal_user_id == cal_user_id || shared_calendar_ids_the_user_is_in.contains(&c.id)
+            })
             .collect::<Vec<Calendar>>();
 
         Ok(calendars_for_user)

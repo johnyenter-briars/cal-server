@@ -1,78 +1,34 @@
-use std::time::Instant;
+use actix_web::{get, post, web, HttpResponse};
 
-use actix::{Actor, StreamHandler, Addr, Recipient};
-use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
-use actix_web_actors::ws;
-use rand::{self, rngs::ThreadRng, Rng};
-use actix::prelude::*;
-use crate::server::{message::Message, disconnect::Disconnect, clientmessage::ClientMessage, notificationsession::NotificationSession};
+use crate::{
+    models::server::{requests::createnotificationrequest::CreateNotificationRequest, responses::{createnotificationresponse::CreateNotificationResponse, notificationsresponse::NotificationsResponse}},
+    server::httpserver::AppState,
+};
 
-#[derive(Message)] //makes 'Connect' impl Message
-#[rtype(usize)] //designates the return type of it's 'Handler' impl will be
-pub struct Connect {
-    pub addr: Recipient<Message>,
-}
+#[get("/api/notification")]
+pub async fn get_notifications(state: web::Data<AppState>) -> HttpResponse {
+    let connector = state.cal_connector.lock().unwrap();
 
+    let notifications = match connector.get_all_notifications() {
+        Ok(c) => c,
+        Err(message) => return NotificationsResponse::error(message.to_string()),
+    };
 
-
-pub struct NotificationServer {
-    client: Recipient<Message>,
-    rng: ThreadRng,
-}
-
-impl NotificationServer {
-    pub fn send_notification(&self, message: &str) {
-        self.client.do_send(Message(message.to_owned()));
+    match notifications.len() {
+        0 => NotificationsResponse::not_found(),
+        _ => NotificationsResponse::ok(notifications),
     }
 }
 
-impl Actor for NotificationServer {
-    type Context = Context<Self>;
-}
+#[post("/api/notification")]
+pub async fn create_notification(
+    notification_req: web::Json<CreateNotificationRequest>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    let connector = state.cal_connector.lock().unwrap();
 
-impl Handler<Connect> for NotificationServer {
-    type Result = usize;
-
-    fn handle(&mut self, msg: Connect, ctx: &mut Self::Context) -> Self::Result {
-        println!("Someone connected");
-        self.send_notification("Client connected!");
-        let id = self.rng.gen::<usize>();
-        id
+    match connector.create_notification(notification_req.0, None) {
+        Ok(uuid) => CreateNotificationResponse::created(uuid),
+        Err(e) => CreateNotificationResponse::error(e.to_string()),
     }
-}
-
-impl Handler<Disconnect> for NotificationServer {
-    type Result = ();
-
-    fn handle(&mut self, msg: Disconnect, _: &mut Context<Self>) {
-        println!("The client disconnected");
-    }
-}
-
-impl Handler<ClientMessage> for NotificationServer {
-    type Result = ();
-
-    fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
-        self.send_notification(msg.msg.as_str());
-    }
-}
-
-pub async fn create_notification_connection(
-    req: HttpRequest,
-    stream: web::Payload,
-    srv: web::Data<Addr<NotificationServer>>,
-) -> Result<HttpResponse, Error> {
-    // let resp = ws::start(MyWs {}, &req, stream);
-    // println!("{:?}", resp);
-    // resp
-    ws::start(
-        NotificationSession {
-            id: 0,
-            heart_beat: Instant::now(),
-            notification_server: srv.get_ref().clone(),
-
-        },
-        &req,
-        stream,
-    )
 }

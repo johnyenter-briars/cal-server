@@ -1,22 +1,22 @@
-use crate::models::cal::event::Event;
+use crate::models::cal::{calendar::Calendar, notification::Notification};
 use actix_web::{http::header::ContentType, HttpResponse};
 use serde::Serialize;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EventsResponse {
-    events: Vec<Event>,
+pub struct NotificationsResponse {
+    notifications: Vec<Notification>,
     status_code: u32,
     message: String,
 }
 
-impl EventsResponse {
-    pub fn ok(events: Vec<Event>) -> HttpResponse {
+impl NotificationsResponse {
+    pub fn ok(notifications: Vec<Notification>) -> HttpResponse {
         HttpResponse::Ok().content_type(ContentType::json()).body(
-            EventsResponse {
+            NotificationsResponse {
                 status_code: 200,
-                message: "Events found".to_string(),
-                events,
+                message: "Notifications found".to_string(),
+                notifications,
             }
             .as_serde_string(),
         )
@@ -26,10 +26,10 @@ impl EventsResponse {
         HttpResponse::NotFound()
             .content_type(ContentType::json())
             .body(
-                EventsResponse {
+                NotificationsResponse {
                     status_code: 400,
-                    message: "No events found for user".to_string(),
-                    events: vec![],
+                    message: "No Notifications found for user".to_string(),
+                    notifications: vec![],
                 }
                 .as_serde_string(),
             )
@@ -39,10 +39,10 @@ impl EventsResponse {
         HttpResponse::InternalServerError()
             .content_type(ContentType::json())
             .body(
-                EventsResponse {
+                NotificationsResponse {
                     status_code: 500,
                     message,
-                    events: vec![],
+                    notifications: vec![],
                 }
                 .as_serde_string(),
             )

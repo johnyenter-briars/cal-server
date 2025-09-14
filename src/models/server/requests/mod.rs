@@ -4,3 +4,4 @@ pub mod createeventrequest;
 pub mod createseriesrequest;
 pub mod updateeventrequest;
 pub mod createsharedcalendarrequest;
+pub mod createnotificationrequest;
