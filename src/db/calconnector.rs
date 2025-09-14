@@ -233,31 +233,26 @@ impl CalConnector {
             .filter(|e| calendars_for_user.contains(&e.calendar_id));
 
         for e in events_in_calendars {
-            // Only consider events happening today
             if let Some(start) = e.start_time {
+                // Must be today and still set to notify
                 if now.date_naive() != start.date_naive() || !e.should_notify {
                     continue;
                 }
 
                 let num_events = self.get_notifications_for_event(e.id, cal_user_id)?;
-
-                //TODO: magic number
                 if num_events.len() >= 3 {
                     continue;
                 }
 
-                let span = start - now;
-
-                // future-only checks
-                let minutes = span.num_minutes();
-
-                // 16–30 minute window
-                if (16..=30).contains(&minutes) {
-                    return_events.push(e.clone());
+                // Skip events that have already started
+                if start <= now {
+                    continue;
                 }
 
-                // 0–15 minute window
-                if (0..=15).contains(&minutes) {
+                let span = start - now;
+                let minutes = span.num_minutes();
+
+                if (16..=30).contains(&minutes) || (0..=15).contains(&minutes) {
                     return_events.push(e.clone());
                 }
             }
