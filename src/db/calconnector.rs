@@ -239,7 +239,7 @@ impl CalConnector {
                     continue;
                 }
 
-                let num_events = self.get_notifications_for_event(e.id, cal_user_id)?;
+                let num_events = self.get_notifications_for_event_and_user(e.id, cal_user_id)?;
                 if num_events.len() >= 3 {
                     continue;
                 }
@@ -383,12 +383,19 @@ impl CalConnector {
         self.get_records::<Notification>("SELECT * FROM notification")
     }
 
-    pub fn get_notifications_for_event(
+    pub fn get_notifications_for_event_and_user(
         &self,
         event_id: Uuid,
         cal_user_id: Uuid,
     ) -> CalResult<Vec<Notification>> {
         self.get_records::<Notification>(&format!("SELECT * FROM notification where eventid = '{event_id}' and caluserid = '{cal_user_id}'"))
+    }
+
+    pub fn get_notifications_for_event(
+        &self,
+        event_id: Uuid,
+    ) -> CalResult<Vec<Notification>> {
+        self.get_records::<Notification>(&format!("SELECT * FROM notification where eventid = '{event_id}'"))
     }
 
     pub fn get_calendars_for_user(&self, cal_user_id: Uuid) -> CalResult<Vec<Calendar>> {
