@@ -6,7 +6,9 @@ use std::{
 use crate::{
     models::server::requests::{
         createcalendarrequest::CreateCalendarRequest, createeventrequest::CreateEventRequest,
-        createseriesrequest::CreateSeriesRequest, createsharedcalendarrequest::CreateSharedCalendarRequest,
+        createnotificationrequest::CreateNotificationRequest,
+        createseriesrequest::CreateSeriesRequest,
+        createsharedcalendarrequest::CreateSharedCalendarRequest,
     },
     CalResult,
 };
@@ -35,6 +37,8 @@ pub fn initiaize_db(
     raw_conn.execute(&get_sql_file_contents("calendar")?, [])?;
 
     raw_conn.execute(&get_sql_file_contents("sharedcalendar")?, [])?;
+
+    raw_conn.execute(&get_sql_file_contents("notification")?, [])?;
 
     drop(raw_conn);
 
@@ -425,6 +429,31 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
         },
         None,
     )?;
+
+    let notificaion_event_1 = conn.create_event(
+        CreateEventRequest {
+            name: "notification_event".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::minutes(10)),
+            end_time: Some(Utc::now() + Duration::minutes(10) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: work_calendar_id,
+            color: Some("Green".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
+        },
+        None,
+    )?;
+
+    let _ = conn.create_notification(
+        CreateNotificationRequest {
+            calendar_id: work_calendar_id,
+            event_id: notificaion_event_1,
+            cal_user_id: user_id,
+        },
+        None,
+    );
 
     Ok(())
 }
