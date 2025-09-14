@@ -3,3 +3,4 @@ pub mod caluser;
 pub mod event;
 pub mod series;
 pub mod sharedcalendar;
+pub mod notification;

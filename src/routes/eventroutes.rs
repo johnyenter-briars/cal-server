@@ -117,7 +117,7 @@ pub async fn get_event_page(page: web::Path<String>, state: web::Data<AppState>)
     }
 }
 
-#[get("/api/event/{year}/{month}")]
+#[get("/api/event/{year:\\d+}/{month:\\d+}")]
 pub async fn get_events_of_month(
     params: web::Path<(i32, u32)>,
     state: web::Data<AppState>,
@@ -148,6 +148,26 @@ pub async fn delete_event(uuid: web::Path<String>, state: web::Data<AppState>) -
             None => DeletedEntityResponse::bad_request("No entity found with that Id".to_string()),
         },
         Err(e) => DeletedEntityResponse::error(e.to_string()),
+    }
+}
+
+#[get("/api/event/upcomming/{uuid}")]
+pub async fn get_upcomming_events_for_user(
+    uuid: web::Path<String>,
+    state: web::Data<AppState>,
+) -> HttpResponse {
+    let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
+
+    let connector = state.cal_connector.lock().unwrap();
+
+    let notifications = match connector.get_upcomming_events(id) {
+        Ok(c) => c,
+        Err(message) => return EventsResponse::error(message.to_string()),
+    };
+
+    match notifications.len() {
+        0 => EventsResponse::not_found(),
+        _ => EventsResponse::ok(notifications),
     }
 }
 
