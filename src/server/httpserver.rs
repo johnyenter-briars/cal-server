@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use crate::{
     db::calconnector::CalConnector,
     routes::{
-        adminroutes::{list_database_saves, load_database_version, save_database}, calendarroutes::{create_calendar, delete_calendar, get_calendars_for_user}, caluserroutes::{create_caluser, get_caluser}, eventroutes::{create_event, delete_event, get_event_page, get_event_via_name, get_events, get_events_of_month, get_upcomming_events_for_user, update_event}, notificationroutes::{create_notification, delete_notification, get_notifications}, seriesroutes::{create_series, delete_series, get_all_series, get_series}
+        adminroutes::{list_database_saves, load_database_version, save_database}, calendarroutes::{create_calendar, delete_calendar, get_calendars_for_user}, caluserroutes::{create_caluser, get_caluser}, eventroutes::{create_event, delete_event, get_event_page, get_event_via_name, get_events, get_events_of_month, get_upcomming_events_for_user, update_event}, notificationroutes::{create_notification, delete_notification, get_notifications, get_notifications_for_event}, seriesroutes::{create_series, delete_series, get_all_series, get_series}
     },
 };
 use actix_web::web;
@@ -53,6 +53,7 @@ pub async fn build_and_run_server(
                 .service(get_upcomming_events_for_user)
                 .service(create_notification)
                 .service(delete_notification)
+                .service(get_notifications_for_event)
                 .wrap(Logger::new("%a %{User-Agent}i %r %s %U %{Content-Type}i"))
                 .app_data(app_state.clone())
                 .wrap(ApiKey::new(key_value.clone())),
