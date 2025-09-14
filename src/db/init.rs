@@ -430,9 +430,9 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
         None,
     )?;
 
-    let notificaion_event_1 = conn.create_event(
+    let notificaion_test_event_1 = conn.create_event(
         CreateEventRequest {
-            name: "notification_event".to_string(),
+            name: "notification test event".to_string(),
             description: Some("some description here".to_string()),
             start_time: Some(Utc::now() + Duration::minutes(10)),
             end_time: Some(Utc::now() + Duration::minutes(10) + Duration::hours(1)),
@@ -448,11 +448,27 @@ fn add_test_data(user_id: Uuid, api_key: &str, conn: &CalConnector) -> CalResult
 
     let _ = conn.create_notification(
         CreateNotificationRequest {
-            event_id: notificaion_event_1,
+            event_id: notificaion_test_event_1,
             cal_user_id: user_id,
         },
         None,
     );
+
+    let _ = conn.create_event(
+        CreateEventRequest {
+            name: "shared_notification_test_event_1".to_string(),
+            description: Some("some description here".to_string()),
+            start_time: Some(Utc::now() + Duration::minutes(10)),
+            end_time: Some(Utc::now() + Duration::minutes(10) + Duration::hours(1)),
+            cal_user_id: user_id,
+            series_id: None,
+            calendar_id: shared_calendar_id,
+            color: Some("Green".to_string()),
+            num_times_notified: 0,
+            should_notify: true,
+        },
+        None,
+    )?;
 
     Ok(())
 }
