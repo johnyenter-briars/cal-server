@@ -1,7 +1,8 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, delete, web, HttpResponse};
+use uuid::Uuid;
 
 use crate::{
-    models::server::{requests::createnotificationrequest::CreateNotificationRequest, responses::{createnotificationresponse::CreateNotificationResponse, notificationsresponse::NotificationsResponse}},
+    models::server::{requests::createnotificationrequest::CreateNotificationRequest, responses::{createnotificationresponse::CreateNotificationResponse, deletedentityresponse::DeletedEntityResponse, notificationsresponse::NotificationsResponse}},
     server::httpserver::AppState,
 };
 
@@ -30,5 +31,18 @@ pub async fn create_notification(
     match connector.create_notification(notification_req.0, None) {
         Ok(uuid) => CreateNotificationResponse::created(uuid),
         Err(e) => CreateNotificationResponse::error(e.to_string()),
+    }
+}
+
+#[delete("/api/notification/{uuid}")]
+pub async fn delete_notification(uuid: web::Path<String>, state: web::Data<AppState>) -> HttpResponse {
+    let id = Uuid::parse_str(&uuid).expect("uuid improperly formatted");
+
+    match state.cal_connector.lock().unwrap().delete_entity(id, "notification") {
+        Ok(option) => match option {
+            Some(id) => DeletedEntityResponse::ok(id),
+            None => DeletedEntityResponse::bad_request("No entity found with that Id".to_string()),
+        },
+        Err(e) => DeletedEntityResponse::error(e.to_string()),
     }
 }
