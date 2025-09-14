@@ -1,8 +1,5 @@
-
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
