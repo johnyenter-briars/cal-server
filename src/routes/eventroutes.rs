@@ -166,7 +166,6 @@ pub async fn get_upcomming_events_for_user(
     };
 
     match notifications.len() {
-        0 => EventsResponse::not_found(),
         _ => EventsResponse::ok(notifications),
     }
 }
